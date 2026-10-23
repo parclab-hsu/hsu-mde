@@ -1,0 +1,54 @@
+site_name: MDE · 한성대학교 PARC Lab
+site_description: Manufacturing Deformation Engine — 로봇 접촉에 의한 물체 변형 시뮬레이션 실험 결과 (한성대학교 PARC Lab)
+site_url: https://parclab-hsu.github.io/hsu-mde/
+site_author: 한성대학교 PARC Lab
+copyright: Copyright &copy; 2026 한성대학교 PARC Lab (Hansung University). All rights reserved.
+
+theme:
+  name: material
+  language: ko
+  custom_dir: overrides
+  palette:
+    - scheme: default
+      primary: blue grey
+      accent: light blue
+      toggle: {icon: material/weather-night, name: 다크 모드}
+    - scheme: slate
+      primary: blue grey
+      accent: light blue
+      toggle: {icon: material/weather-sunny, name: 라이트 모드}
+  features:
+    - navigation.tabs
+    - navigation.top
+    - content.tables.fullwidth
+  icon:
+    logo: material/hand-back-right-outline
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc: {permalink: true}
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra:
+  generator: false
+  social:
+    - icon: material/home
+      link: https://parclab-hsu.github.io/
+      name: 한성대학교 PARC Lab
+
+nav:
+  - 개요: index.md
+  - 대표 데모: demo.md
+  - 소재별 손가락 가압: materials.md
+  - 종이컵 쥐기: cup.md
+  - 관절 토크: torque.md

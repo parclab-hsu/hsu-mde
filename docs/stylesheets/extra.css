@@ -1,0 +1,6 @@
+.mde-video { width: 100%; max-width: 760px; border-radius: 6px; display: block; margin: 0 auto; background: #000; }
+.mde-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.8rem; margin: 1rem 0; }
+.mde-grid figure { margin: 0; }
+.mde-grid video, .mde-grid img { width: 100%; border-radius: 6px; display: block; }
+.mde-grid figcaption { font-size: 0.72rem; text-align: center; margin-top: 0.3rem; }
+.mde-badge { font-size: 0.75rem; padding: 0.1rem 0.5rem; border-radius: 1rem; background: var(--md-accent-fg-color--transparent); }
