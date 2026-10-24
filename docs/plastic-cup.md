@@ -1,7 +1,8 @@
 # 플라스틱 컵 쥐기
 
 [종이컵 쥐기](cup.md)와 같은 동작으로 투명 **PET 16 oz 냉음료 컵**(윗지름 98 mm, 아랫지름 58 mm, 높이 115 mm, 벽 두께 0.25 mm)을
-쥡니다. 옆에서 감싸 쥐고, 80 mm 들어 올려 더 세게 쥐었다가 풀고, 내려놓습니다. **빈 컵, 물 1/3, 물 2/3** 세 경우를 비교합니다.
+쥡니다. 옆에서 감싸 쥐고, 80 mm 들어 올려 더 세게 쥐었다가 풀고, 내려놓습니다. **빈 컵, 물 1/3, 물 2/3** 세 경우와 **컵 크기 네 가지**(9 / 16 / 20 / 24 oz)를 비교합니다.
+500 ml 물병은 [PET 물병 쥐기](bottle.md)에 있습니다.
 PET 컵은 종이컵보다 훨씬 무르기 때문에 관절 토크를 낮췄습니다(종이컵은 0.10 / 0.35 N·m).
 컵 벽의 색은 변형 방향(적색: 바깥으로, 청색: 안쪽으로)입니다. 기준: 2026-10-24, Isaac Sim 5.0.0.
 
@@ -56,6 +57,45 @@ PET 컵은 종이컵보다 훨씬 무르기 때문에 관절 토크를 낮췄습
   물 2/3에서는 0.05 N·m로도 여유가 1.09배밖에 되지 않습니다.
 - 관절 토크에는 손가락 마찰이 컵과 물의 무게를 받치는 힘이 들어 있습니다.
 - 꽉 쥐어도 수면 높이는 0.1 mm 이하로만 변합니다. 컵이 타원으로 찌그러져도 단면적은 거의 줄지 않기 때문입니다.
+
+## 컵 크기 — 9 / 16 / 20 / 24 oz (빈 컵, 쥐기 0.03 N·m, 꽉 쥐기 0.06 N·m)
+
+윗지름이 같은 계열(95–98 mm)의 PET 컵 네 가지를 같은 토크로 쥡니다. 벽 두께와 소재는 16 oz와 같고, 치수만 다릅니다.
+
+| | 9 oz | 16 oz | 20 oz | 24 oz |
+|---|---|---|---|---|
+| 윗지름 / 아랫지름 / 높이 | 95 / 57 / 83 mm | 98 / 58 / 115 mm | 95 / 60 / 140 mm | 95 / 64 / 165 mm |
+| 컵 무게 (추정) | 8.9 g | 12 g | 13.8 g | 16.4 g |
+| 쥐는 높이 (탁자에서) | 40 mm | 75 mm | 91 mm | 107 mm |
+| 지름을 6.35 mm 줄이는 힘 (추정) | 0.70 N | 0.72 N | 0.82 N | 0.84 N |
+| 쥐었을 때 접촉력 · 테두리 변형 | 5.9 N · 9.0 mm | 6.5 N · 6.5 mm | 5.3 N · 6.3 mm | 5.5 N · 5.8 mm |
+| 꽉 쥐었을 때 접촉력 · 테두리 변형 | 11.7 N · 9.3 mm | 10.2 N · 8.3 mm | 10.1 N · 7.7 mm | 10.8 N · 6.9 mm |
+| 되돌렸을 때 테두리 변형 | 9.0 mm | 7.9 mm | 7.0 mm | 5.2 mm |
+| 마찰 여유 (들고 있는 동안 최소) | 33배 | 19.7배 | 17.2배 | 13.2배 |
+| 관절 토크 최대 | 0.26 N·m | 0.17 N·m | 0.16 N·m | 0.15 N·m |
+
+<div class="mde-grid">
+<figure><img src="../images/pet-9oz-squeezed-top.jpg" loading="lazy" alt="9 oz 꽉 쥐었을 때 위에서"><figcaption>9 oz — 꽉 쥐었을 때 위에서</figcaption></figure>
+<figure><img src="../images/pet-20oz-squeezed-top.jpg" loading="lazy" alt="20 oz 꽉 쥐었을 때 위에서"><figcaption>20 oz — 꽉 쥐었을 때 위에서</figcaption></figure>
+<figure><img src="../images/pet-24oz-squeezed-top.jpg" loading="lazy" alt="24 oz 꽉 쥐었을 때 위에서"><figcaption>24 oz — 꽉 쥐었을 때 위에서</figcaption></figure>
+</div>
+
+<div class="mde-grid">
+<figure><video class="mde-video" src="../media/pet-9oz-grasp.mp4" poster="../media/pet-9oz-grasp.jpg" controls muted loop playsinline></video><figcaption>9 oz</figcaption></figure>
+<figure><video class="mde-video" src="../media/pet-20oz-grasp.mp4" poster="../media/pet-20oz-grasp.jpg" controls muted loop playsinline></video><figcaption>20 oz</figcaption></figure>
+<figure><video class="mde-video" src="../media/pet-24oz-grasp.mp4" poster="../media/pet-24oz-grasp.jpg" controls muted loop playsinline></video><figcaption>24 oz</figcaption></figure>
+</div>
+
+![접촉력 합과 테두리 변형: PET 컵 9·16·20·24 oz](images/pet-sizes.png){ loading=lazy }
+
+- 같은 토크로 쥐면 접촉력은 크기와 관계없이 비슷하고(5–7 N), **작은 컵일수록 테두리가 더 찌그러집니다**. 9 oz는 키가 낮아
+  손가락이 테두리 가까이를 쥐게 됩니다.
+- 9 oz는 쥐는 높이를 40 / 47 / 54 / 60 mm로 바꿔 보았습니다. 47 mm는 관절 토크가 한 스텝 크게 튀었고, 54 mm는 들어 올리지 못했으며,
+  60 mm는 검지가 테두리를 넘어갔습니다. 그래서 40 mm로 쥐었습니다.
+- 9 oz는 들어 올린 뒤 약지가 컵 바닥 아래로 내려갑니다. 컵 바닥과 손가락의 접촉은 계산하지 않습니다.
+- 9 oz는 내려놓는 동안 접촉력이 스텝마다 7.0 N과 10.8 N을 오갑니다(그래프 오른쪽의 띠). 원인은 아직 확인하지 않았습니다.
+
+데이터: [9 oz](data/pet-9oz-grasp.csv) · [16 oz](data/pet-cup-grasp.csv) · [20 oz](data/pet-20oz-grasp.csv) · [24 oz](data/pet-24oz-grasp.csv)
 
 ## 종이컵과 비교
 
