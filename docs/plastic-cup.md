@@ -1,56 +1,85 @@
 # 플라스틱 컵 쥐기
 
 [종이컵 쥐기](cup.md)와 같은 동작으로 투명 **PET 16 oz 냉음료 컵**(윗지름 98 mm, 아랫지름 58 mm, 높이 115 mm, 벽 두께 0.25 mm)을
-쥡니다. 옆에서 감싸 쥐고, 80 mm 들어 올려 더 세게 쥐었다가 풀고, 내려놓습니다. PET 컵은 종이컵보다 훨씬 무르기 때문에 관절 토크를
-**쥐기 0.03 N·m, 꽉 쥐기 0.06 N·m**로 낮췄습니다(종이컵은 0.10 / 0.35 N·m). 컵 벽의 색은 변형 방향(적색: 바깥으로, 청색: 안쪽으로)입니다.
-기준: 2026-10-24, Isaac Sim 5.0.0.
+쥡니다. 옆에서 감싸 쥐고, 80 mm 들어 올려 더 세게 쥐었다가 풀고, 내려놓습니다. **빈 컵, 물 1/3, 물 2/3** 세 경우를 비교합니다.
+PET 컵은 종이컵보다 훨씬 무르기 때문에 관절 토크를 낮췄습니다(종이컵은 0.10 / 0.35 N·m).
+컵 벽의 색은 변형 방향(적색: 바깥으로, 청색: 안쪽으로)입니다. 기준: 2026-10-24, Isaac Sim 5.0.0.
+
+## 빈 컵 (쥐기 0.03 N·m, 꽉 쥐기 0.06 N·m)
 
 <video class="mde-video" src="../media/pet-cup-grasp.mp4" poster="../media/pet-cup-grasp.jpg" controls muted loop playsinline></video>
 
 <div class="mde-grid">
-<figure><img src="../images/pet-cup-grasped.jpg" loading="lazy" alt="쥐었을 때"><figcaption>쥐었을 때 (관절 토크 0.03 N·m)</figcaption></figure>
-<figure><img src="../images/pet-cup-lifted.jpg" loading="lazy" alt="들었을 때"><figcaption>80 mm 들어 올림</figcaption></figure>
+<figure><img src="../images/pet-cup-grasped.jpg" loading="lazy" alt="쥐었을 때"><figcaption>쥐었을 때 (0.03 N·m)</figcaption></figure>
 <figure><img src="../images/pet-cup-squeezed.jpg" loading="lazy" alt="꽉 쥐었을 때"><figcaption>꽉 쥐었을 때 (0.06 N·m)</figcaption></figure>
 <figure><img src="../images/pet-cup-squeezed-top.jpg" loading="lazy" alt="꽉 쥐었을 때 위에서"><figcaption>위에서 본 모습 — 테두리가 타원이 된다</figcaption></figure>
 <figure><img src="../images/pet-cup-eased.jpg" loading="lazy" alt="되돌렸을 때"><figcaption>0.03 N·m로 되돌림 — 찌그러진 모양이 거의 그대로 남는다</figcaption></figure>
-<figure><img src="../images/pet-cup-released.jpg" loading="lazy" alt="놓은 뒤"><figcaption>내려놓고 손을 편 뒤 — 원래 모양</figcaption></figure>
+</div>
+
+## 물 1/3 — 126 ml, 컵과 물 138 g (쥐기 0.03 N·m, 꽉 쥐기 0.06 N·m)
+
+<video class="mde-video" src="../media/pet-water13-grasp.mp4" poster="../media/pet-water13-grasp.jpg" controls muted loop playsinline></video>
+
+<div class="mde-grid">
+<figure><img src="../images/pet-water13-open.jpg" loading="lazy" alt="쥐기 전"><figcaption>쥐기 전 — 물 높이 38 mm</figcaption></figure>
+<figure><img src="../images/pet-water13-lifted.jpg" loading="lazy" alt="들었을 때"><figcaption>80 mm 들어 올림</figcaption></figure>
+<figure><img src="../images/pet-water13-squeezed-top.jpg" loading="lazy" alt="꽉 쥐었을 때 위에서"><figcaption>꽉 쥐었을 때 위에서</figcaption></figure>
+</div>
+
+## 물 2/3 — 310 ml, 컵과 물 322 g (쥐기 0.05 N·m, 꽉 쥐기 0.08 N·m)
+
+빈 컵과 같은 0.03 N·m로는 들지 못합니다. 쥐는 힘 4.5 N에 마찰계수 0.5를 곱한 2.2 N이 무게 3.2 N보다 작습니다.
+그래서 0.05 N·m로 올려 쥐었습니다.
+
+<video class="mde-video" src="../media/pet-water23-grasp.mp4" poster="../media/pet-water23-grasp.jpg" controls muted loop playsinline></video>
+
+<div class="mde-grid">
+<figure><img src="../images/pet-water23-open.jpg" loading="lazy" alt="쥐기 전"><figcaption>쥐기 전 — 물 높이 77 mm</figcaption></figure>
+<figure><img src="../images/pet-water23-lifted.jpg" loading="lazy" alt="들었을 때"><figcaption>80 mm 들어 올림 (0.05 N·m)</figcaption></figure>
+<figure><img src="../images/pet-water23-squeezed-top.jpg" loading="lazy" alt="꽉 쥐었을 때 위에서"><figcaption>꽉 쥐었을 때 위에서 (0.08 N·m)</figcaption></figure>
 </div>
 
 ## 결과
 
-| 시점 | 관절 토크 설정 | 접촉력 합 | 검지 / 중지 / 약지 / 엄지 / 손바닥 | 테두리 변형(안쪽 / 바깥) |
-|---|---|---|---|---|
-| 쥐었을 때 | 0.03 N·m | 6.5 N | 0.7 / 1.4 / 0.5 / 1.9 / 1.9 N | 6.5 / 6.3 mm |
-| 들었을 때 | 0.03 N·m | 6.2 N | 0.6 / 1.2 / 0.8 / 1.7 / 1.8 N | 6.5 / 6.3 mm |
-| 꽉 쥐었을 때 | 0.06 N·m | 10.0 N | 1.6 / 1.7 / 1.4 / 2.7 / 2.6 N | 8.1 / 8.4 mm |
-| 되돌렸을 때 | 0.03 N·m | 5.4 N | 0.5 / 0.5 / 1.0 / 1.4 / 2.0 N | 7.9 / 7.1 mm |
-| 놓은 뒤 | — | 0 N | — | 0 mm (탄성 복원) |
+| | 빈 컵 | 물 1/3 | 물 2/3 |
+|---|---|---|---|
+| 컵과 물의 무게 | 12 g (0.12 N) | 138 g (1.36 N) | 322 g (3.16 N) |
+| 쥐기 / 꽉 쥐기 설정 | 0.03 / 0.06 N·m | 0.03 / 0.06 N·m | 0.05 / 0.08 N·m |
+| 쥐었을 때 접촉력 · 테두리 변형 | 6.5 N · 6.5 mm | 5.4 N · 6.2 mm | 8.6 N · 7.2 mm |
+| 들고 있을 때 접촉력 | 6.2 N | 5.9 N | 7.8 N |
+| 꽉 쥐었을 때 접촉력 · 테두리 변형 | 10.2 N · 8.3 mm | 12.4 N · 8.0 mm | 14.6 N · 8.8 mm |
+| 되돌렸을 때 테두리 변형 | 7.9 mm | 7.6 mm | 9.0 mm |
+| 마찰 여유 (들고 있는 동안 최소) | 19.7배 | 1.85배 | **1.09배** |
+| 관절 토크 최대 | 0.17 N·m | 0.17 N·m | 0.20 N·m |
 
-- 컵 무게(약 12 g, 0.12 N)를 들려면 마찰계수 0.5에서 쥐는 힘 0.24 N이면 됩니다. 실제 쥐는 힘 6.2 N은 그 25배 이상이라
-  미끄러지지 않습니다.
-- 관절 토크 최대는 0.15 N·m입니다(종이컵 1.11 N·m).
+- 마찰 여유는 손가락이 마찰로 버틸 수 있는 힘(마찰계수 0.5 × 접촉력)을 컵과 물의 무게로 나눈 값입니다. 1보다 작으면 미끄러집니다.
+  물 2/3에서는 0.05 N·m로도 여유가 1.09배밖에 되지 않습니다.
+- 관절 토크에는 손가락 마찰이 컵과 물의 무게를 받치는 힘이 들어 있습니다.
+- 꽉 쥐어도 수면 높이는 0.1 mm 이하로만 변합니다. 컵이 타원으로 찌그러져도 단면적은 거의 줄지 않기 때문입니다.
 
 ## 종이컵과 비교
 
-![접촉력 합과 테두리 변형: 종이컵 대 PET 컵](images/pet-vs-paper.png){ loading=lazy }
+![접촉력 합과 테두리 변형: 종이컵 대 PET 컵(빈 컵·물 1/3·물 2/3)](images/pet-vs-paper.png){ loading=lazy }
 
-| | 종이컵 16 oz | PET 컵 16 oz |
+| | 종이컵 16 oz (빈 컵) | PET 컵 16 oz (빈 컵) |
 |---|---|---|
 | 지름을 6.35 mm 줄이는 힘 (높이의 2/3 지점) | 4.4 N (시판 컵 시험값 3.5–5.3 N에 맞춤) | 0.7 N (추정값, 0.3–1.9 N) |
 | 쥐었을 때 접촉력 / 테두리 | 17.2 N / 5.6 mm | 6.5 N / 6.5 mm |
-| 꽉 쥐었을 때 접촉력 / 테두리 | 76.8 N / 9.1 mm | 10.0 N / 8.4 mm |
+| 꽉 쥐었을 때 접촉력 / 테두리 | 76.8 N / 9.1 mm | 10.2 N / 8.3 mm |
 | 되돌렸을 때 테두리 | 4.2 mm | 7.9 mm |
 
 - PET 컵은 1/3 이하의 힘으로 종이컵보다 더 찌그러집니다.
 - 힘을 되돌려도 PET 컵은 찌그러진 모양이 거의 남습니다. 무른 컵은 적은 힘으로도 그 모양을 유지할 수 있어, 쥐는 토크가 설정값
   아래로 내려가면 손가락이 더 물러나지 않기 때문입니다.
 
-데이터: [pet-cup-grasp.csv](data/pet-cup-grasp.csv) — 스텝·단계·설정·접촉력(합·손가락별)·테두리 변형·관절 16개 토크
+데이터(스텝·단계·설정·접촉력 합과 손가락별·테두리 변형·컵 높이·마찰이 받친 무게·수면 높이·관절 16개 토크):
+[빈 컵](data/pet-cup-grasp.csv) · [물 1/3](data/pet-water13-grasp.csv) · [물 2/3](data/pet-water23-grasp.csv)
 
 !!! warning "한계"
     - **PET 컵의 옆벽 강성은 실측값이 아닙니다.** 컵 치수·벽 두께·PET 탄성계수에서 계산한 추정값이며, 그 범위만 해도 6배 차이가
       납니다. 종이컵은 시판 컵의 시험값에 맞췄습니다.
     - 컵 벽은 **탄성만** 표현합니다. 벽 변위 8 mm 이상은 모델이 정확한 범위(약 3.4 mm)를 크게 넘는 외삽입니다. 실제 PET 컵은
       이 정도면 옆벽이 꺾이거나 찌그러진 채 남습니다.
-    - 컵은 투명하게 그리지 않았습니다(연청색).
-    - 관절 토크는 관절 센서 값이 아니라 시뮬레이션의 접촉 법선력에서 계산한 값입니다(마찰 제외).
+    - 물은 무게로만 들어갑니다. 출렁임·관성은 없고, 컵은 기울지 않습니다. 들어 올린 뒤에는 미끄러짐을 다시 계산하지 않으므로,
+      여유가 1보다 작아지는 설정은 결과로 쓰지 않았습니다.
+    - 관절 토크는 관절 센서 값이 아니라 시뮬레이션의 접촉력에서 계산한 값입니다.
