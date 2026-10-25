@@ -6,16 +6,16 @@
   위쪽 줄에 단계·설정·접촉력·변형·관절 토크·마찰 여유를 표시합니다.
 - **네 방향 영상**: 정면·가까이·위·회전 카메라를 한 화면에 모았습니다.
 
-영상의 수치는 같은 설정으로 다시 실행한 결과이며, PET 컵과 물병은 각 실험 페이지의 CSV와 값이 일치합니다.
-종이컵 두 영상은 그 뒤에 「들고 있는 동안 무게를 받치는 마찰」을 관절 토크 계산에 넣은 판으로 다시 찍어, 종이컵 페이지·대표 데모의
-CSV와 접촉력이 최대 0.7 N(빠른 데모), 0.004 N(쥐기) 다릅니다. 단계와 시점은 같습니다.
+[추정값·힘 점검](check.md)의 수정(PET 컵·물병 물성을 문헌 범위로, 힘 계산 수정)을 반영해 13개 실험을 모두 다시 찍었습니다.
+영상의 수치는 각 실험 페이지의 CSV와 같은 실행에서 나왔습니다. 관절 토크 그래프에는 Allegro Hand 한계 0.7 N·m와
+Isaac Lab 손 모델 설정 0.5 N·m를 함께 그렸습니다. 「관절 토크 최대」는 16개 관절 전체의 최대라, 토크로 조절하지 않는 벌림 관절도 포함합니다.
 기준: 2026-10-25, Isaac Sim 5.0.0. 모든 결과는 시뮬레이션입니다. 추정값과 그 한계는 [추정값·힘 점검](check.md)에 정리했습니다.
 
 ## 비교 영상
 
 같은 단계끼리 맞춰 나란히 재생합니다(단계 길이가 다르면 짧은 쪽을 늘려 맞춤).
 
-<figure><video class="mde-video" src="../media/demo/compare-paper-pet.mp4" poster="../media/demo/compare-paper-pet.jpg" controls muted loop playsinline preload="none"></video><figcaption>종이컵 대 PET 컵 16 oz — 같은 동작, PET 컵은 1/3 이하의 힘으로 더 찌그러진다</figcaption></figure>
+<figure><video class="mde-video" src="../media/demo/compare-paper-pet.mp4" poster="../media/demo/compare-paper-pet.jpg" controls muted loop playsinline preload="none"></video><figcaption>종이컵 대 PET 컵 16 oz — 같은 동작, PET 컵은 1/3–1/6 토크로 쥔다</figcaption></figure>
 
 <figure><video class="mde-video" src="../media/demo/compare-water.mp4" poster="../media/demo/compare-water.jpg" controls muted loop playsinline preload="none"></video><figcaption>PET 컵 — 빈 컵 · 물 1/3 · 물 2/3</figcaption></figure>
 
