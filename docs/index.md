@@ -49,6 +49,18 @@ NVIDIA Isaac Sim 위에서 로봇 손의 동작과 함께 돌며, 소재별 물�
 
     500 ml 생수병을 빈 병·물 1/3·물 2/3·가득(마개 닫음/엶)으로 쥐기. 몸통은 PET 컵보다 14배 단단하다. CSV.
 
+-   :material-movie-open-outline: **[데모 영상](videos.md)**
+
+    ---
+
+    모든 실험을 매 스텝 다시 찍은 영상: 장면 + 접촉력·변형·관절 토크 그래프, 네 방향, 회전 카메라, 단계를 맞춘 비교 영상.
+
+-   :material-clipboard-check-outline: **[추정값·힘 점검](check.md)**
+
+    ---
+
+    추정값(옆벽 강성·벽 두께·질량·마찰)을 공개 문헌과 대조하고, 계산된 힘·관절 토크의 한계를 정리.
+
 -   :material-chart-line: **[관절 토크](torque.md)**
 
     ---
