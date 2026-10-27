@@ -11,6 +11,14 @@
 Isaac Lab 손 모델 설정 0.5 N·m를 함께 그렸습니다. 「관절 토크 최대」는 16개 관절 전체의 최대라, 토크로 조절하지 않는 벌림 관절도 포함합니다.
 기준: 2026-10-25, Isaac Sim 5.0.0. 모든 결과는 시뮬레이션입니다. 추정값과 그 한계는 [추정값·힘 점검](check.md)에 정리했습니다.
 
+## 강화학습 병렬 학습 (2026-10-27)
+
+Isaac Lab에서 Allegro Hand가 PET 컵 16 oz를 집어 드는 동작을 강화학습(PPO)으로 배우는 과정입니다. 같은 장면 1024개를 GPU 한 장
+(RTX 5080 16 GB)에서 동시에 돌려 1500회(iteration) 학습했고, 렌더링을 포함해 약 22분 걸렸습니다. 학습 중 250회마다 한 episode씩
+찍은 장면 뒤에 다 배운 정책을 1024개 장면 전경으로 붙였습니다. 보상 구성과 수치 결과는 정리 중이라 아직 공개하지 않습니다.
+
+<figure><video class="mde-video" src="../media/demo/rl-train-1024.mp4" poster="../media/demo/rl-train-1024.jpg" controls muted loop playsinline preload="none"></video><figcaption>PPO 학습 — 1024개 병렬 환경, 0·250·500·750·1000·1250회와 학습된 정책(56초)</figcaption></figure>
+
 ## 비교 영상
 
 같은 단계끼리 맞춰 나란히 재생합니다(단계 길이가 다르면 짧은 쪽을 늘려 맞춤).
