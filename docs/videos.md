@@ -19,6 +19,27 @@ Isaac Lab에서 Allegro Hand가 PET 컵 16 oz를 집어 드는 동작을 강화�
 
 <figure><video class="mde-video" src="../media/demo/rl-train-1024.mp4" poster="../media/demo/rl-train-1024.jpg" controls muted loop playsinline preload="none"></video><figcaption>PPO 학습 — 1024개 병렬 환경, 0·250·500·750·1000·1250회와 학습된 정책(56초)</figcaption></figure>
 
+## 냉장고 문 여닫기 (2026-10-27)
+
+Allegro Hand가 일반형 냉장고(폭 600 mm, 브랜드 없음)의 막대 손잡이를 감아 쥐고 문을 95° 열었다 닫습니다. 문 각도와 손목 경로는
+정해 둔 스크립트이고, 손가락은 각 마디가 손잡이에 닿을 때까지 굽힙니다. 문의 움직임과 손의 힘은 계산하지 않습니다.
+
+MDE는 **문 패킹(가스켓)** 을 계산합니다. 문이 닫히는 마지막 몇 도 동안 문 안쪽 테두리의 패킹이 냉장고 앞면에 눌리고,
+MDE가 매 프레임 패킹의 눌림과 반력, 그 반력을 손잡이에서 버티는 데 드는 힘을 냅니다. 영상 오른쪽 상자가 패킹 지도(빨간색일수록 많이 눌림)와 그 수치입니다.
+
+| 항목 | 값 |
+|---|---|
+| 닫힌 상태의 패킹 눌림 | 2.00 mm(설계값으로 둔 값) |
+| 패킹 반력(전체) | 48.7 N |
+| 손잡이에서 버티는 힘 | 26.9 N |
+| 패킹이 처음 닿는 각도 | 경첩 쪽, 약 8° |
+| 다시 열었을 때 남는 눌림 | 0 mm |
+
+패킹 강성은 실측값이 아니라, 패킹 전체가 2 mm 눌릴 때 약 50 N이 되도록 정한 **가정값**입니다. 문을 붙잡아 두는 자석 띠와,
+오래 쓴 패킹이 납작해지는 현상은 모델에 없습니다.
+
+<figure><video class="mde-video" src="../media/demo/fridge-door.mp4" poster="../media/demo/fridge-door.jpg" controls muted loop playsinline preload="none"></video><figcaption>냉장고 문 — 전경과 손잡이 확대, 오른쪽은 MDE 문 패킹(11초)</figcaption></figure>
+
 ## 비교 영상
 
 같은 단계끼리 맞춰 나란히 재생합니다(단계 길이가 다르면 짧은 쪽을 늘려 맞춤).
