@@ -5,7 +5,7 @@ hide:
 
 # Manufacturing Deformation Engine (MDE)
 
-<span class="mde-badge">연구개발 진행 중</span> · **한성대학교 PARC Lab** · 기준일 2026-10-25
+<span class="mde-badge">연구개발 진행 중</span> · **한성대학교 PARC Lab** · 기준일 2026-10-29
 
 MDE는 로봇이 물체를 **누르고 쥘 때 물체가 어떻게 변형되고, 무엇이 남는지**를 계산하는 시뮬레이션 엔진입니다.
 NVIDIA Isaac Sim 위에서 로봇 손의 동작과 함께 돌며, 소재별 물성 Profile을 바꾸는 것만으로 같은 동작에서 서로 다른
@@ -80,6 +80,39 @@ NVIDIA Isaac Sim 위에서 로봇 손의 동작과 함께 돌며, 소재별 물�
     - 소재 물성은 문헌·제품 자료에서 잡은 **잠정값**이며 실측 보정 전입니다. 특정 제품의 성능 예측으로 쓰지 마십시오.
     - 관절 토크는 관절 센서로 잰 값이 아니라, 시뮬레이션의 접촉력에서 **계산한 값**입니다(소재 가압은 법선력만, 컵·물병은 들고 있는 동안 무게를 받치는 마찰도 포함).
     - 로봇 손은 Isaac Sim 5.0에 포함된 Allegro Hand(Wonik Robotics) 시뮬레이션 모델입니다.
+
+## 설치와 예제 실행
+
+MDE 소스는 공개하지 않습니다. **GitHub 저장소 주소는 [kblee@hansung.ac.kr](mailto:kblee@hansung.ac.kr)로 요청해
+허가받은 분들에게만 알려 드립니다.** 요청 메일에 소속, 사용 목적, GitHub 계정을 적어 주시면, 허가 시 저장소 초대와 함께
+상세 설치 가이드(저장소의 `docs/INSTALL.md`)를 안내합니다. 받은 소스와 문서는 제3자에게 전달하거나 공개하지 않는 조건입니다.
+
+**필요한 환경**
+
+| 항목 | 내용 |
+|---|---|
+| OS | Ubuntu 22.04 |
+| GPU | NVIDIA RTX 계열, VRAM 12 GB 이상 (검증: RTX 5080 16 GB) |
+| 소프트웨어 | NVIDIA driver, Docker + NVIDIA Container Toolkit, Python 3.10 이상 |
+| 시뮬레이터 | NVIDIA Isaac Sim 5.0.0 · Isaac Lab 2.2.1 — host에 설치하지 않고 Docker 컨테이너로 실행 |
+| 디스크 | 100 GB 이상 (컨테이너 이미지 약 50 GB) |
+
+**설치 순서**
+
+1. **Host 준비** — NVIDIA driver, Docker, NVIDIA Container Toolkit을 설치하고 컨테이너 안에서 GPU가 보이는지 확인합니다.
+2. **코어 설치** — 저장소를 받아 Python 패키지로 설치하고 시험을 돌립니다. 코어 엔진은 GPU 없이 동작합니다.
+3. **Isaac 준비** — Isaac Sim 5.0.0 이미지를 받고, 로봇 손 모델을 한 번 내려받고, Isaac Lab 이미지를 만듭니다(1회, 네트워크 필요).
+
+**예제** — 순서대로 실행하면 설치의 각 층을 하나씩 확인할 수 있습니다. 기대 결과는 저장소에 함께 들어 있습니다.
+
+| 예제 | GPU | 이 사이트의 해당 결과 |
+|---|---|---|
+| 패드 반복 가압 (코어 엔진만) | 불필요 | — |
+| PET 물병 쥐기 (Isaac Sim 장면) | 필요 | [PET 물병 쥐기](bottle.md) |
+| 손가락 가압 · 소재 비교 | 필요 | [소재별 손가락 가압](materials.md) |
+| 강화학습 — 수건 접기 (1024개 병렬 환경) | 필요 | [수건 접기](towel.md) |
+
+강화학습 예제는 학습부터 시작합니다(정책 하나에 약 10–60분). 학습·평가·영상 만들기를 각각 명령 한 줄로 실행합니다.
 
 ## 개발 단계
 
