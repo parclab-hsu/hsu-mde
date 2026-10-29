@@ -55,5 +55,6 @@ nav:
   - PET 물병 쥐기: bottle.md
   - 데모 영상: videos.md
   - 강화학습 데모: rl-grasp.md
+  - 수건 접기: towel.md
   - 추정값·힘 점검: check.md
   - 관절 토크: torque.md

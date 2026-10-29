@@ -49,6 +49,12 @@ NVIDIA Isaac Sim 위에서 로봇 손의 동작과 함께 돌며, 소재별 물�
 
     500 ml 생수병을 빈 병·물 1/3·물 2/3·가득(마개 닫음/엶)으로 쥐기. 마개를 닫으면 병 안 압력이 오르고 벽이 덜 들어간다. CSV.
 
+-   :material-hand-back-right-outline: **[수건 접기 (강화학습)](towel.md)**
+
+    ---
+
+    1024개 병렬 환경에서 수건을 가장 빨리 잘 접도록 학습: 128/128회, 1.38 s. 수건은 MDE 천 모델. 손끝 센서 신호와 MDE 신호 비교.
+
 -   :material-movie-open-outline: **[데모 영상](videos.md)**
 
     ---
