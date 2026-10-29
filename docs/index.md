@@ -61,6 +61,12 @@ NVIDIA Isaac Sim 위에서 로봇 손의 동작과 함께 돌며, 소재별 물�
 
     모든 실험을 매 스텝 다시 찍은 영상: 장면 + 접촉력·변형·관절 토크 그래프, 네 방향, 회전 카메라, 단계를 맞춘 비교 영상.
 
+-   :material-scale-balance: **[NVIDIA Newton과 비교](newton.md)**
+
+    ---
+
+    오픈소스 GPU 물리 엔진 Newton(v1.7.0)과 MDE의 역할·대상·영구 변형·찢김 판정·연동 방식 비교. Newton은 움직임과 힘, MDE는 물체에 남는 것.
+
 -   :material-clipboard-check-outline: **[추정값·힘 점검](check.md)**
 
     ---
