@@ -15,6 +15,12 @@ NVIDIA Isaac Sim 위에서 로봇 손의 동작과 함께 돌며, 소재별 물�
 
 <p style="text-align:center"><small><b>대표 데모</b> — Allegro Hand가 종이컵을 빠르게 쥐고 들었다가 놓쳐 떨어뜨리는 4.8 s 장면(실제 시간 재생). 스텝마다 계산 시간을 함께 기록했습니다 → <a href="demo/">대표 데모</a></small></p>
 
+## 구조
+
+[![MDE 아키텍처](images/mde-architecture.png)](images/mde-architecture.png)
+
+<p style="text-align:center"><small><b>MDE 아키텍처</b> — 위: 시뮬레이터의 접촉이 Contact Patch로 표본화되고, Material Profile과 Response Model을 거쳐 변형 상태·이력이 된 뒤 형상 갱신과 모델 상태 라벨로 나갑니다. 아래: 강화학습 데모도 같은 엔진으로 매 스텝 판정합니다. 클릭하면 원본 크기로 볼 수 있습니다.</small></p>
+
 ## 실험
 
 <div class="grid cards" markdown>
