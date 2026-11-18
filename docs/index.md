@@ -21,6 +21,34 @@ NVIDIA Isaac Sim 위에서 로봇 손의 동작과 함께 돌며, 소재별 물�
 
 <p style="text-align:center"><small><b>MDE 아키텍처</b> — 위: 시뮬레이터의 접촉이 Contact Patch로 표본화되고, Material Profile과 Response Model을 거쳐 변형 상태·이력이 된 뒤 형상 갱신과 모델 상태 라벨로 나갑니다. 아래: 강화학습 데모도 같은 엔진으로 매 스텝 판정합니다. 클릭하면 원본 크기로 볼 수 있습니다.</small></p>
 
+## ROS 2 환경 제어
+
+시뮬레이션 장면의 환경 조건을 **ROS 2 topic** 으로 바꿀 수 있습니다. 같은 동작을 조명·배치·시점이 다른 조건에서 반복해
+데이터를 모으고(domain randomization), 그 장면을 정답 라벨과 함께 촬영합니다(synthetic data).
+데모용 장면으로 공장 작업 셀(작업대·conveyor·부품 상자가 있는 산업 건물)을 구성했습니다.
+
+| 분류 | Topic (`/mde/env/…`) | 제어 내용 |
+|---|---|---|
+| 천장 조명 | `lights/ceiling/enable` · `intensity` · `color_temperature` · `color` | 켜기/끄기, 세기(기준 대비 %), 색온도(K), 색 |
+| 작업 조명 | `lights/key/enable` · `intensity` · `pose` · `radius` · `color_temperature` · `color` | 작업대 위 spot 조명의 위치·방향·크기 |
+| 외광 | `lights/sun/enable` · `intensity` · `pose` · `azimuth_elevation` · `color_temperature` · `angular_size` | 방위각·고도로 지정하는 햇빛 방향과 세기 |
+| 카메라 | `camera/pose`, `camera/lens_flare/*` | 촬영 시점, lens flare(조리개 날 수·F 값·초점거리 등) |
+| 렌더 | `render/mode` | 실시간 / path tracing |
+| 배치 | `layout/select`, `layout/table/pose`, `layout/conveyor/pose`, `clutter/enable` | 작업 셀 배치 preset, 작업대·conveyor 위치, 주변 부품 표시 |
+| 무작위화 | `randomize/seed` · `clutter` · `lights` · `materials` · `camera` · `all` | 부품 배치·크기, 조명 조건, 표시 재질, 카메라 시점 (seed 로 재현) |
+| 촬영 | `capture/trigger` | N 장 촬영, 장마다 새 시점. RGB·2D bounding box·instance/semantic segmentation 자동 라벨 |
+| 상태 | `status` (출력) | 메시지마다 적용 결과·거부 사유(JSON) |
+
+- 모든 입력은 허용 범위를 검사하며, 범위를 벗어난 메시지는 적용하지 않고 `status` 로 사유를 돌려줍니다.
+- 무작위화는 화면에 보이는 조건만 바꿉니다. 접촉·변형 계산에 쓰는 소재 물성값은 바뀌지 않습니다.
+- ROS 2 Humble·Jazzy 에서 정의가 같은 표준 메시지 타입(`std_msgs`, `geometry_msgs`)만 사용합니다.
+
+```bash
+ros2 topic pub --once /mde/env/lights/ceiling/intensity std_msgs/msg/Float32 "{data: 50.0}"
+ros2 topic pub --once /mde/env/randomize/all std_msgs/msg/Empty "{}"
+ros2 topic pub --once /mde/env/capture/trigger std_msgs/msg/Int32 "{data: 100}"
+```
+
 ## 실험
 
 <div class="grid cards" markdown>
