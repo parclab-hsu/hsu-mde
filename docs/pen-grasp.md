@@ -79,7 +79,7 @@ MDE는 접촉마다 다음을 냅니다.
 ### 처음 공개한 값 — 손끝 반경 12 mm 가정
 
 
-<figure><video class="mde-video" src="../media/demo/pen-grasp-pgrasp05.mp4" poster="../media/demo/pen-grasp-pgrasp05.jpg" controls muted loop playsinline preload="none"></video><figcaption>마지막 학습(세 번째 이어 학습) 근접 장면. 세 손가락으로 펜을 가볍게 쥐고 기울인 뒤, 펜 끝을 종이에 대고 버팁니다</figcaption></figure>
+<figure><video class="mde-video" src="../media/demo/pen-grasp-pgrasp05.mp4" poster="../media/demo/pen-grasp-pgrasp05.jpg" controls muted loop playsinline preload="none"></video><figcaption>학습 ③(손끝 반경 12 mm 가정으로 학습, 뒤에 학습 ④로 이어 학습) 근접 장면. 세 손가락으로 펜을 가볍게 쥐고 기울인 뒤, 펜 끝을 종이에 대고 버팁니다</figcaption></figure>
 
 | 항목 | 정해 둔 동작만 | 학습 ① | 학습 ② (① 이어서) | **학습 ③ (② 이어서, MDE 기준 반영)** |
 |---|---|---|---|---|
