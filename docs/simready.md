@@ -259,17 +259,17 @@ MDE 쪽은 이 사이트에 이미 공개한 Profile 만 씁니다: 16 oz 종이
 
 | 항목 | 상태 | 내용 |
 |---|---|---|
-| 읽기(ingest) | <span class="mde-st part">부분</span> | 이번 분석처럼 asset 의 단위·강체·질량·재질·라벨·라이선스를 읽어 보고서로 냅니다. 분석용 읽기는 해 봤고, MDE 기능으로 넣는 것은 계획 |
+| 읽기(ingest) | <span class="mde-st part">부분</span> | 구현됨: asset 을 고치지 않고 읽기만 하는 ingest. 단위·강체·질량·재질·라벨·라이선스를 asset 선언값으로 보고하고, asset 에 적혀 있지 않은 값은 채우지 않고 「unknown」 그대로 둡니다. 5.5 처럼 하위 prim 재질이 MDE 재질을 덮을 위험이 있으면 표시합니다. 계획: MDE 값을 별도 USD layer 로 덧씌우는 일(asset 원본은 그대로) |
 | 「실측 아님」으로 가져오기 | <span class="mde-st plan">계획</span> | asset 의 질량·마찰에 「asset 선언값, 실측 아님」 출처를 붙입니다. 질량이 공식값이면 그렇게 표시합니다. 반발·밀도·두께·채움 비율은 보고서에만 남깁니다 |
 | PhysX variant 선택 | <span class="mde-st plan">계획</span> | asset 을 장면에 넣을 때 PhysX variant 를 명시적으로 고르고, 근사가 없거나 입구를 막는 근사면 경고합니다 |
 | 재질 덮어쓰기 확인 | <span class="mde-st plan">계획</span> | 5.5 의 확인을 넣습니다 |
-| asset 마다 새 Profile | <span class="mde-st plan">계획</span> | 형상은 asset mesh 에서, 변형 값은 같은 소재의 기존 Profile 에서 가져온 잠정 Profile 을 사람이 만듭니다. 자동으로 만들지 않습니다 |
+| asset 형상에 맞춘 Profile | <span class="mde-st part">부분</span> | 형상은 asset 에서 읽은 값(asset 선언)을 쓰고, 재료 값은 같은 소재의 공개 기본 Profile 값을 가정으로 가져옵니다. 모든 값에 「검증 안 됨」을 표시하며, 쓰기 전에 사람이 검토합니다. 8절 비교에 이렇게 만든 Profile 을 썼습니다. 재료 값을 asset 에 맞추는 일과 실물 보정은 하지 않았습니다 |
 | 검사 도구를 CI 에 | <span class="mde-st plan">계획</span> | `simready-validate` 결과를 판마다(3.1.0·4.0.0·5.0.0) 저장하고, 직접 만든 작은 시험 asset 으로 CI 에서 돌립니다 |
 
 ## 7. 출처 표기
 
 - 분석한 asset: **NVIDIA SimReady Assets** ([nvidia/simready-assets](https://huggingface.co/datasets/nvidia/simready-assets), rev 99bb6c7),
-  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode). 변경: MDE 분석 및 material overlay 추가(예정).
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode). 변경: MDE 분석, 그리고 8절 계산에서 MDE material layer 적용.
   이 사이트는 asset 파일·형상·화면을 다시 배포하지 않으며, 표의 수치는 asset 을 읽어 얻은 값입니다.
 - 이 페이지는 NVIDIA 의 보증·후원·검토를 받지 않았으며, NVIDIA 와 무관한 분석입니다.
 - 규격 설명의 근거: [What Is SimReady?](https://www.nvidia.com/en-us/glossary/simready/),
@@ -284,6 +284,85 @@ MDE 쪽은 이 사이트에 이미 공개한 Profile 만 씁니다: 16 oz 종이
     - MDE 값은 시뮬레이션 모델의 **추정값**이고, SimReady 값은 asset 에 적힌 값입니다. 둘 다 실물을 잰 값이 아닙니다.
     - 실제 로봇이나 실물의 결과를 예측한다고 주장하지 않습니다.
 
-결합 전후 비교는 계산이 끝나는 대로 이 페이지에 추가합니다.
+## 8. SimReady asset 과 MDE 결합 전후 비교
+
+기준일 2026-11-28 · CPU 계산 · GPU 장면 render 는 하지 않았습니다.
+
+같은 asset 에 같은 힘 schedule 을 주고 두 방식으로 계산했습니다.
+
+| | Before | After |
+|---|---|---|
+| 대상 | SimReady asset 그대로. **강체**이므로 눌림과 놓은 뒤 잔류(자국)는 언제나 **0** 입니다 | 같은 asset 에 **MDE material layer** 를 적용한 것 |
+| 나오는 값 | 접촉력, 미끄러짐 여유(slip margin)·손끝 마찰 한계 | 눌림 깊이, 놓은 뒤 잔류, 모델 범위 밖 판정, step 별 상태 |
+
+- MDE material layer 의 형상은 asset 에서 읽은 값(asset 선언)이고, 재료 값은 같은 소재의 공개 기본 Profile 값을 그대로 쓴 **가정**입니다.
+  이 asset 에 맞춘 재료 값이 아닙니다.
+- 값 구분: **asset-declared** = asset 파일에 적힌 값(잰 값 아님) · **계산** = 그 값으로 한 손 계산 · **추정** = MDE 시뮬레이션 추정값.
+
+### 8.1 종이컵 — 옆면 집기
+
+paper cup 의 높이 중간 옆면을 10 × 10 mm 패드 두 개로 집습니다. 패드 힘을 0부터 25 step 동안 올린 뒤 놓습니다.
+놓은 뒤 잔류는 최대 힘을 네 가지로 바꿔 따로 눌렀다 놓아 구했습니다.
+
+![SimReady 종이컵, 강체(Before)와 MDE material layer(After)의 옆면 집기 비교](images/simready/cup_before_after.png)
+
+<small>NVIDIA SimReady Assets (nvidia/simready-assets, rev 99bb6c7), CC BY 4.0. 변경: MDE material layer 적용.
+이 그림은 NVIDIA 의 보증·후원·검토를 받지 않았습니다.</small>
+
+| 지표 | Before | After | 구분 |
+|---|---|---|---|
+| 질량 | 25.5 g | 25.5 g | asset-declared |
+| 정지 마찰 μ | 0.70 | 0.70 | asset-declared |
+| 들기 최소 쥠힘 m g / (2 μ) | 0.18 N | 0.18 N | 계산 |
+| 그 힘(0.18 N)에서 패드 아래 눌림 | 0 (강체) | 0.05 mm | 추정 |
+| 패드 힘 10.1 N 에서 눌림 | 0 (강체) | 2.67 mm | 추정 |
+| 패드 힘 10.1 N 에서 slip margin | 57 | 57 | 계산 |
+| 놓은 뒤 잔류(최대 힘 2.5 · 5.1 · 7.6 · 10.1 N) | 0 (강체) | 네 경우 모두 0.00 mm (탄성 응답만 계산, 8.3 참고) | 추정 |
+| 모델 범위 밖 판정 | 없음 | 25 step 중 8 step (10.1 N 을 넘는 힘) | 추정 |
+| 상태 | 없음 | 접촉 없음(`no_contact`) · 탄성(`elastic`) · 모델 범위 밖(`out_of_model`) | 추정 |
+
+- 강체에서는 들기에 필요한 힘(0.18 N)보다 훨씬 세게 쥐어도 slip margin 만 커집니다. MDE 를 얹으면 같은 힘에서 벽이 얼마나 들어가는지가 나옵니다.
+- 모델 범위 밖으로 판정된 step 은 깊이를 보고하지 않습니다.
+
+### 8.2 골판지 상자 — 윗면 손끝 누르기
+
+cardboard box 윗면을 강체 구(반지름 10 mm) 손끝으로 누릅니다. 힘을 약 40 N 까지 올린 뒤 놓습니다.
+
+- **주 계산 — 가장자리:** 앞쪽 긴 변에서 20 mm 안쪽(옆벽 위).
+- **모델 범위 밖 사례 — 중앙:** 윗면 가운데. 판이 크게 처져 일찍 모델 범위 밖으로 판정되는 예입니다.
+
+![SimReady 골판지 상자, 강체(Before)와 MDE material layer(After)의 윗면 누르기 비교](images/simready/box_before_after.png)
+
+<small>NVIDIA SimReady Assets (nvidia/simready-assets, rev 99bb6c7), CC BY 4.0. 변경: MDE material layer 적용.
+이 그림은 NVIDIA 의 보증·후원·검토를 받지 않았습니다.</small>
+
+| 지표 | Before | After — 가장자리(주) | After — 중앙(범위 밖 사례) | 구분 |
+|---|---|---|---|---|
+| 질량 | 1.00 kg | 1.00 kg | 1.00 kg | asset-declared |
+| 정지 마찰 μ | 0.70 | 0.70 | 0.70 | asset-declared |
+| 최대 힘(가장자리 40.5 N · 중앙 40.1 N)에서 눌림 | 0 (강체) | 3.80 mm | 7.1 N 부터 모델 범위 밖이라 보고하지 않음 | 추정 |
+| 최대 힘에서 손끝 마찰 한계 μ F | 28.3 N | 28.3 N | 28.0 N | 계산 |
+| 놓은 뒤 자국 | 0 (강체) | 1.71 mm | 1.67 mm (범위 밖 구간을 지난 뒤라 참고값) | 추정 |
+| 자국이 생기기 시작한 힘 | 없음 | 4.5 N | 3.8 N | 추정 |
+| 최대 힘별 자국(5 / 10 / 20 / 40 N) | 0 (강체) | 0.01 / 0.13 / 0.59 / 1.71 mm | — | 추정 |
+| 모델 범위 밖 판정 | 없음 | 76 step 중 0 | 483 step 중 398 (7.1 N 부터) | 추정 |
+| 상태 | 없음 | 탄성(`elastic`) · 골판지 속 골 눌림(`core_crush`) | 탄성 · 골 눌림 · 모델 범위 밖(`out_of_model`) | 추정 |
+
+- 같은 40 N 이라도 누르는 자리에 따라 결과가 다릅니다. 가장자리는 끝까지 모델 범위 안이고, 중앙은 판이 크게 처져 7 N 부근부터 범위 밖입니다.
+- 강체 asset 만으로는 「얼마나 세게 눌렀나」가 물체에 남지 않습니다. After 는 힘에 따른 눌림과 놓은 뒤 자국, 모델이 다룰 수 없는 구간을 step 별로 나눠 보여 줍니다.
+
+### 8.3 한계
+
+- **컵은 탄성 응답만 계산합니다.** 공개 컵 Profile 에는 놓은 뒤 남는 변형을 계산하는 단계가 없습니다. 그래서 컵의 잔류는 항상 0 입니다.
+  이것은 「세게 쥐어도 자국이 남지 않는다」는 뜻이 **아닙니다.**
+- **컵이 접히는 모습은 보여 줄 수 없습니다.** 현재 컵 모델이 다루는 선형 범위는 벽이 접히기 시작하기 훨씬 전에 끝납니다.
+  그 너머는 모델 범위 밖으로만 표시하고 깊이를 보고하지 않습니다. 접힘이나 찌그러짐을 그린 그림이 아닙니다.
+- **상자 윗판은 작은 처짐을 가정한 판 이론으로 계산합니다.** 처짐이 골판지 두께 정도를 넘으면 모델 범위 밖입니다.
+  상자 안 내용물이나 flap 이 받쳐 주는 효과는 넣지 않았습니다. asset 에는 골 방향 정보가 없어 강한 굽힘 방향을 긴 변으로 가정했습니다.
+- **패드와 손끝은 강체로 가정했습니다.** 손가락 쪽 변형은 넣지 않았습니다.
+- **Before 의 값은 정적 계산입니다.** slip margin = 2 μ F / (m g), 손끝 마찰 한계 = μ F 이며 asset 의 μ 를 그대로 썼습니다.
+  PhysX 의 마찰 결합 방식(combine mode)과 반발(restitution)은 반영하지 않았습니다.
+- **재료 값은 모두 가정입니다.** 실물로 비교·검증하지 않았습니다. 이 결과는 재료 예측이 아니며, 시뮬레이션 결과가 실물에 그대로 맞는다고 주장하지 않습니다.
+- asset 질량은 3.3 절의 명목값입니다(종이컵 25.5 g 은 실제 종이컵보다 무겁습니다).
 
 <small>제3자 이름: NVIDIA·SimReady·Isaac Sim·OpenUSD·PhysX·MuJoCo·Newton·Hugging Face·Wikidata 는 각 소유자의 상표입니다. 이 페이지는 그 규격의 인증이나 준수를 뜻하지 않습니다.</small>
