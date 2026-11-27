@@ -1,6 +1,8 @@
-# NVIDIA Newton과 MDE 비교
+# NVIDIA Newton·RaiSim과 MDE 비교
 
 기준일 2026-10-30 · Newton **v1.7.0**(2026-10-14) 공개 자료 기준 · MDE는 이 사이트의 실험 기준(Isaac Sim 5.0.0 · Isaac Lab 2.2.1)
+
+2026-11-27 추가: [RaiSim의 Newton 벤치마크와 MDE](#raisim-newton-mde) 절 · Newton **v1.8.0**(2026-11-11) · RaiSim 공개 문서 기준. 위쪽 Newton 비교표는 v1.7.0 기준 그대로입니다.
 
 **Newton**은 NVIDIA·Google DeepMind·Disney Research가 시작하고 Linux Foundation이 관리하는 오픈소스 GPU 물리 엔진입니다.
 로봇 학습을 위해 강체·관절체·천·연성체·입자를 빠르게 계산합니다. **MDE**는 로봇이 물체를 누르고 쥘 때 **물체에 무엇이 남는지**
@@ -42,6 +44,70 @@
 - **판정과 라벨.** Newton이 주는 것은 상태와 힘입니다. MDE는 그 위에 「이 접촉으로 물체가 상했는가」를 소재 기준으로 판정해
   학습 보상·평가·데이터 라벨로 씁니다. 같은 손 힘이라도 소재가 바뀌면 판정이 바뀝니다.
 
+## RaiSim의 Newton 벤치마크와 MDE
+
+2026년 11월 CPU 물리 엔진 **RaiSim**이 자사 문서에 Newton과의 처리량 비교를 공개했습니다.
+아래 수치는 모두 **RaiSim이 직접 잰 발표값이며, 독립적으로 검증되지 않았습니다.** 이 사이트는 이 실험을 재현하지 않았습니다.
+
+### RaiSim이 잰 것
+
+| 항목 | 내용 |
+|---|---|
+| 비교 | RaiSim(CPU, 64비트 부동소수) 대 Newton의 MuJoCo Warp solver(GPU, 32비트 부동소수) |
+| 하드웨어 | CPU 한 개(Intel Core Ultra 7 265K) 대 GPU 한 장(RTX 5070 12 GB). 부품 가격만으로 나눔 |
+| 장면 | 사족 로봇 ANYmal, 링크 기구 Strandbeest, 6축 팔과 2지 그리퍼로 100 g 물체 집어 옮기기 |
+| 지표 | 물리 계산 처리량(초당 step × world 수)을 부품 가격으로 나눈 값. 정책 추론·관측·보상·렌더링은 시간에서 뺌 |
+| 규모 | 동시에 돌린 world 1개부터 RaiSim 4,096개, Newton 32,768개까지 |
+
+### RaiSim이 발표한 결과
+
+- world가 적을수록 RaiSim이 크게 앞섭니다. 가격당 처리량은 ANYmal 1개에서 약 254배, 64개에서 약 38배, 4,096개에서 약 3.4배라고 발표했습니다.
+- world가 많아질수록 차이가 줄어듭니다. RaiSim은 4,096개를 넘겨 재지 않았고, Newton의 가격당 처리량은 ANYmal 16,384개, Strandbeest 8,192개에서 가장 높았습니다.
+- 물체 집기 장면에서 Newton은 world 1,024개 이상에서 그리퍼 손가락 연동 오차가 RaiSim이 정한 허용치(0.01 rad)를 넘어, RaiSim은 그 구간 결과를 점수로 인정하지 않았습니다.
+
+### 읽을 때 주의
+
+RaiSim 문서도 다음을 한계로 적었습니다. 두 엔진은 solver·구속 방식·정밀도가 달라 같은 계산을 비교한 것이 아니고,
+접촉 수와 궤적도 다릅니다. 가격은 부품 값만이며 GPU도 host CPU가 필요합니다. 처리량은 물리 계산만이며 학습 전체 시간이 아닙니다.
+
+이 사이트가 덧붙이는 점입니다.
+
+- 지표·하드웨어·장면·허용치를 모두 한 엔진 개발사가 정한 비교입니다. GPU는 소비자용 한 장만 썼고, Newton은 여러 solver 중 MuJoCo Warp 하나만 시험했습니다.
+- 천·연성체·변형, 미분, 실물 대비 정확도는 이 비교에 없습니다.
+- 본문이 가리키는 실행 코드 저장소는 2026-11-27 기준 공개 주소에서 열리지 않았습니다. 결과 원자료(JSON)는 받을 수 있습니다.
+
+### 세 엔진이 맡는 층
+
+RaiSim과 Newton은 로봇과 물체가 **어떻게 움직이고 얼마의 힘이 걸리는지**를 푸는 물리 엔진이고, 이 벤치마크는 그 속도를 비교합니다.
+MDE는 물리 엔진이 아니라, 물리 엔진이 낸 접촉을 받아 **물체에 무엇이 남는지**를 소재별로 계산하고 판정하는 층입니다.
+그래서 MDE는 이 속도 비교의 참가자가 아니며, 지금 쓰는 PhysX를 대신하지도 않습니다.
+
+| 항목 | RaiSim | NVIDIA Newton | MDE |
+|---|---|---|---|
+| 맡는 층 | 강체·관절체 물리 (+선형 탄성) | 강체·관절체·천·연성체·입자 물리 | 접촉 뒤 변형·남는 상태·판정 |
+| 계산 장치 | CPU, world마다 독립 실행 | GPU(NVIDIA Warp), world를 묶어 실행 | Isaac Sim·Isaac Lab 안에서 매 스텝. 코어는 GPU 없이 동작, 천은 GPU에서 1024개 환경 동시 계산 |
+| 내는 것 | 움직임·접촉력 | 움직임·접촉력 | 눌린 깊이, 남은 자국·주름, 늘어남·찢김·금, 설정한 한계 초과 |
+| 미분 가능 | 공개 자료에서 확인하지 않음 | 일부 solver만 기초 지원 | 목표로 하지 않음 |
+| 공개 | 상용 라이선스(학술 무료) | 오픈소스(Apache-2.0) | 소스 비공개, 허가 시 제공 |
+| 속도 근거 | RaiSim 발표값(독립 검증 아님) | NVIDIA 발표값(독립 검증 아님) | 이 사이트 측정: 손이 닿아 있는 동안 변형 엔진 계산만 스텝당 평균 99–143 ms([대표 데모](demo.md)) |
+
+- **접촉을 잘 푸는 엔진은 MDE의 입력을 좋게 합니다.** MDE의 판정은 물리 엔진이 낸 접촉 위치·하중에서 시작하기 때문입니다.
+- **지금 공개한 측정에서 느린 쪽은 물리 계산이 아닙니다.** [대표 데모](demo.md)에서 손이 컵에 닿아 있는 동안의 스텝당 99–143 ms는
+  렌더링을 뺀 변형 엔진 계산만 잰 값이고, 접촉이 없을 때는 1.4–8 ms입니다. 이 장면에서는 물리 엔진을 더 빠른 것으로 바꿔도
+  접촉 구간이 실시간이 되지 않습니다. 한 장면·한 PC에서 잰 값이므로 일반화하지 않습니다.
+- **판정의 기준은 소재입니다.** 같은 손 힘이라도 Material Profile이 바뀌면 판정이 바뀝니다([소재별 손가락 가압](materials.md)).
+  이 부분은 어느 물리 엔진을 쓰는지와 따로 확인해야 합니다.
+
+### Newton·RaiSim 위에서 MDE를 돌린다면 (아직 시험하지 않음)
+
+구조상 MDE가 물리 엔진에 요구하는 것은 매 스텝의 접촉 위치·하중과, 변형된 형상을 되돌려 줄 통로입니다. 아래는 **설계상 가능성**이며 수행하지 않았습니다.
+
+- **Newton** — Isaac Lab의 Newton 물리 백엔드로 옮기는 것이 다음 검토 대상입니다. 확인할 것: 접촉 정보 형식, MuJoCo Warp 접촉과
+  PhysX 접촉의 차이가 판정에 주는 영향, 1024개 환경 처리량, 판정 경계 근처 값이 실행마다 얼마나 흔들리는지.
+- **RaiSim** — world마다 CPU에서 따로 도는 구조라, GPU 없이 도는 MDE 코어를 world 단위로 붙이는 구성을 생각할 수 있습니다. 확인할 것:
+  접촉 정보 접근 방식, 형상 갱신 가능 여부, GPU에서 도는 천 모델과의 데이터 이동 비용, 라이선스 조건, 장면·asset 이식 범위.
+- **공통** — 엔진을 바꿔도 같은 소재·같은 동작에서 판정이 일관한지, 여러 seed로 확인해야 합니다. 그 전에는 엔진 간 우열을 말하지 않습니다.
+
 ## 함께 쓸 수 있는가
 
 구조상으로는 가능합니다. MDE가 물리 엔진에 요구하는 것은 매 스텝의 접촉 위치·하중과, 변형된 형상을 되돌려 줄 통로입니다.
@@ -68,3 +134,9 @@ Newton은 Isaac Lab 3.0의 물리 백엔드이므로, MDE를 Isaac Lab 3.0으로
 | Linux Foundation 이관 | [Linux Foundation 보도자료, 2025-09-29](https://www.linuxfoundation.org/press/linux-foundation-announces-contribution-of-newton-by-disney-research-google-deepmind-and-nvidia-to-accelerate-open-robot-learning) |
 | Isaac Lab 백엔드 | [Isaac Lab — Newton physics backend](https://isaac-sim.github.io/IsaacLab/develop/source/concepts/physics-backends/newton.html) (2026-10-30) |
 | MuJoCo Warp | [github.com/google-deepmind/mujoco_warp](https://github.com/google-deepmind/mujoco_warp) (2026-10-30) |
+| RaiSim vs Newton 벤치마크 (본문·원자료 JSON) | [raisim.com — RaiSim vs Newton](https://raisim.com/sections/BenchmarkNewton.html#raisim-vs-newton) (2026-11-27) |
+| RaiSim 라이선스 | [raisim.com — License](https://raisim.com/sections/License.html) (2026-11-27) |
+| RaiSim 선형 탄성 벤치마크 | [raisim.com — Linear elasticity](https://raisim.com/sections/LinearElasticityBenchmarks.html) (2026-11-27) |
+| Newton 1.8.0 Solver 기능표(미분 가능·결정성) | [Newton 문서 — Solvers](https://newton-physics.github.io/newton/stable/solvers/index.html) (2026-11-27) |
+| Newton 버전 이력 (1.8.0 2026-11-11) | [PyPI newton](https://pypi.org/project/newton/#history) (2026-11-27) |
+| MuJoCo Warp (미분 미제공 명시) | [github.com/google-deepmind/mujoco_warp](https://github.com/google-deepmind/mujoco_warp) (2026-11-27) |
