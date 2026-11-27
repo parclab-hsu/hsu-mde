@@ -43,6 +43,23 @@ MDE(Manufacturing Deformation Engine)는 로봇이 물체를 누르고 쥐고 �
 | SimReady asset 연동 | <span class="mde-st plan">계획</span> | 아래 [NVIDIA SimReady asset 연동](#simready) 절 | 아직 SimReady asset으로 시험한 결과가 없습니다 |
 | sim-to-real 미끄러짐·접촉 변형 재현 | <span class="mde-st plan">계획(실측 전)</span> | 실물 측정과 대조하는 단계입니다 | 실물 측정을 하지 않았습니다. 시뮬레이션 결과를 실물 재현으로 주장하지 않습니다 |
 
+## 기능 시험 영상 { #feature-videos }
+
+2026-11-28에 촬영한 기능 시험 영상입니다. 모두 **시뮬레이션 녹화**이며 실제 로봇이나 실물을 찍은 것이 아닙니다.
+상태 표기는 위 기능 표와 아래 topic 표를 따릅니다. 장면의 로봇 손(Allegro Hand, Wonik Robotics 시뮬레이션 모델)과 공장·창고 환경은
+**NVIDIA Isaac Sim 5.0 기본 제공 asset**입니다.
+
+<div class="mde-grid" markdown>
+<figure><video class="mde-video" src="../media/features/lighting-sweep.mp4" poster="../media/features/lighting-sweep.jpg" controls muted loop playsinline preload="none"></video><figcaption><b>조명 제어</b> <span class="mde-st done">구현됨</span> — 공장 작업 셀에서 조명의 방향·세기·색온도를 차례로 바꾸며 그림자와 색이 달라지는 모습. 원본이 640 × 480이라 좌우에 검은 띠를 넣었습니다. key 조명 방위각·고도는 ROS 없이 같은 형식의 메시지를 장면에 넣어 적용했습니다(ROS 2 publish 미확인)</figcaption></figure>
+<figure><video class="mde-video" src="../media/features/sdg-labels.mp4" poster="../media/features/sdg-labels.jpg" controls muted loop playsinline preload="none"></video><figcaption><b>합성 데이터 자동 라벨</b> <span class="mde-st done">구현됨</span> — 시점을 바꿔 가며 RGB(왼쪽 위), semantic segmentation(오른쪽 위), 2D bounding box(왼쪽 아래), depth(오른쪽 아래)를 함께 저장한 frame. 상자는 자동 라벨을 겹쳐 그린 것으로, 화소 단위 정확도를 뜻하지 않습니다</figcaption></figure>
+<figure><video class="mde-video" src="../media/features/camera-conditions.mp4" poster="../media/features/camera-conditions.jpg" controls muted loop playsinline preload="none"></video><figcaption><b>카메라 조건</b> <span class="mde-st done">구현됨</span> — 같은 시점들에 렌즈 오염 얼룩, 색온도 변화, 빛 번짐 같은 촬영 조건을 입힌 frame과 그때의 라벨. 시각 전용이며 물리 결과는 바꾸지 않습니다</figcaption></figure>
+<figure><video class="mde-video" src="../media/features/paper-cup-grasp.mp4" poster="../media/features/paper-cup-grasp.jpg" controls muted loop playsinline preload="none"></video><figcaption><b>접촉 변형 계산 — 종이컵</b> <span class="mde-st done">구현됨</span> — Allegro Hand가 종이컵을 쥐어 들었다 내려놓는 동안 MDE가 계산한 컵 벽 변형을 색으로 표시(적색: 바깥으로, 청색: 안쪽으로). 색은 시뮬레이션 추정값입니다</figcaption></figure>
+<figure><video class="mde-video" src="../media/features/pet-cup-water-grasp.mp4" poster="../media/features/pet-cup-water-grasp.jpg" controls muted loop playsinline preload="none"></video><figcaption><b>접촉 변형 계산 — 물이 든 PET 컵</b> <span class="mde-st done">구현됨</span> — 같은 동작으로 물이 든 투명 PET 컵을 쥐어 들었다 내려놓는 장면. 변형은 시뮬레이션 추정값입니다</figcaption></figure>
+<figure><video class="mde-video" src="../media/features/env-control-lighting.mp4" poster="../media/features/env-control-lighting.jpg" controls muted loop playsinline preload="none"></video><figcaption><b>환경 제어 메시지로 조명 바꾸기</b> <span class="mde-st part">부분</span> — 컵을 쥐는 장면에서 <code>/mde/env</code> 조명 메시지로 조명의 방향·색온도·밝기를 바꾸는 모습. 이 영상의 메시지는 ROS 2 publish가 아니라 ROS 없이 같은 형식의 메시지를 장면에 넣은 것입니다</figcaption></figure>
+</div>
+
+<small>영상은 시뮬레이션 녹화이며 실물 재현을 주장하지 않습니다. 로봇 손과 공장·창고 장면은 NVIDIA Isaac Sim 5.0 기본 제공 asset이고, 이 사이트는 그 asset 파일을 재배포하지 않습니다.</small>
+
 ## ROS 2 환경 제어 topic { #ros2-topics }
 
 - 모든 topic은 `/mde/env` 아래에 있습니다. 범위 밖 값은 잘라 쓰지 않고 메시지 전체를 거부하며, 결과는 `status`로 나옵니다.
@@ -52,114 +69,117 @@ MDE(Manufacturing Deformation Engine)는 로봇이 물체를 누르고 쥐고 �
   나머지 topic은 host 시험(검증·명령)과 ROS 없이 같은 메시지를 넣는 GPU 장면 시험으로 확인했습니다.
 - 카메라 조건 topic(`camera/condition/*`, `camera/render/*`)은 2026-11-20 Isaac Sim ROS 2(Humble) 구동에서 `status` 16/16으로 확인했습니다.
 - 상태: <span class="mde-st done">구현됨</span> = 구현했고 시험을 통과한 topic. <span class="mde-st plan">계획</span> = 그 밖(구현했어도 영상에 작용하지 않거나 시험을 통과하지 못한 것 포함).
+- 확인 수준(2026-11-28 기준): **ROS 2 publish 확인** = 다른 프로세스가 보낸 ROS 2 메시지가 장면에 적용됨 · **Isaac Sim ROS 2 확인** = Isaac Sim 장면을 ROS 2로 구동해 확인 ·
+  **host 시험·GPU 장면 시험(ROS 없이)** = 검증·명령 시험과, ROS 없이 같은 메시지를 장면에 넣는 시험 · **host 시험** = GPU·ROS 없는 시험 · **CPU 시험만** = 장면·ROS 확인 전.
+  `lights/key/azimuth_elevation`은 새 topic으로 CPU 시험만 했습니다. 위 기능 시험 영상에서는 ROS 없이 같은 형식의 메시지를 장면에 넣어 썼으며, 이것은 ROS 2 publish 확인이 아닙니다.
 
 ??? note "1. 조명 (17개)"
 
-    | Topic | 메시지 타입 | 의미 | 범위 | 상태 |
-    |---|---|---|---|---|
-    | `lights/ceiling/enable` | std_msgs/Bool | 천장 조명 group 켬/끔 | — | <span class="mde-st done">구현됨</span> ROS 2 publish 확인 |
-    | `lights/ceiling/intensity` | std_msgs/Float32 | 천장 조명 세기(원래 세기 대비) | 0–10000 % | <span class="mde-st done">구현됨</span> ROS 2 publish 확인 |
-    | `lights/ceiling/color_temperature` | std_msgs/Float32 | 천장 조명 색온도 | 1000–15000 K | <span class="mde-st done">구현됨</span> |
-    | `lights/ceiling/color` | std_msgs/ColorRGBA | 천장 조명 RGB 색 | 성분 0–1 | <span class="mde-st done">구현됨</span> |
-    | `lights/key/enable` | std_msgs/Bool | 작업대 위 key 조명 켬/끔 | — | <span class="mde-st done">구현됨</span> |
-    | `lights/key/intensity` | std_msgs/Float32 | key 조명 세기 | 0–10000 % | <span class="mde-st done">구현됨</span> |
-    | `lights/key/pose` | geometry_msgs/Pose | key 조명 위치·방향 | 단위 quaternion(±1 %) | <span class="mde-st done">구현됨</span> |
-    | `lights/key/azimuth_elevation` | geometry_msgs/Vector3 | key 조명을 조준점 둘레에 배치: x 방위각, y 고도, z 거리(0 = 현재 거리 유지) | x −360–360 deg, y 0–90 deg, z 0–20 m | <span class="mde-st done">구현됨</span> CPU 시험만, ROS 2 publish 미확인 |
-    | `lights/key/radius` | std_msgs/Float32 | key 조명 광원 반경(그림자 경계) | 0.001–5 m | <span class="mde-st done">구현됨</span> |
-    | `lights/key/color_temperature` | std_msgs/Float32 | key 조명 색온도 | 1000–15000 K | <span class="mde-st done">구현됨</span> |
-    | `lights/key/color` | std_msgs/ColorRGBA | key 조명 RGB 색 | 성분 0–1 | <span class="mde-st done">구현됨</span> |
-    | `lights/sun/enable` | std_msgs/Bool | 외광(directional) 켬/끔 | — | <span class="mde-st done">구현됨</span> |
-    | `lights/sun/intensity` | std_msgs/Float32 | 외광 세기 | 0–10000 % | <span class="mde-st done">구현됨</span> |
-    | `lights/sun/pose` | geometry_msgs/Pose | 외광 방향(orientation만 사용) | 단위 quaternion | <span class="mde-st done">구현됨</span> |
-    | `lights/sun/azimuth_elevation` | geometry_msgs/Vector3 | 외광 방위각·고도 | x −360–360 deg, y −90–90 deg | <span class="mde-st done">구현됨</span> ROS 2 publish 확인 |
-    | `lights/sun/color_temperature` | std_msgs/Float32 | 외광 색온도 | 1000–15000 K | <span class="mde-st done">구현됨</span> |
-    | `lights/sun/angular_size` | std_msgs/Float32 | 외광 각크기(그림자 경계) | 0–30 deg | <span class="mde-st done">구현됨</span> |
+    | Topic | 메시지 타입 | 의미 | 범위 | 상태 | 확인 수준 |
+    |---|---|---|---|---|---|
+    | `lights/ceiling/enable` | std_msgs/Bool | 천장 조명 group 켬/끔 | — | <span class="mde-st done">구현됨</span> | ROS 2 publish 확인(Humble·Jazzy) |
+    | `lights/ceiling/intensity` | std_msgs/Float32 | 천장 조명 세기(원래 세기 대비) | 0–10000 % | <span class="mde-st done">구현됨</span> | ROS 2 publish 확인(Humble·Jazzy) |
+    | `lights/ceiling/color_temperature` | std_msgs/Float32 | 천장 조명 색온도 | 1000–15000 K | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `lights/ceiling/color` | std_msgs/ColorRGBA | 천장 조명 RGB 색 | 성분 0–1 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `lights/key/enable` | std_msgs/Bool | 작업대 위 key 조명 켬/끔 | — | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `lights/key/intensity` | std_msgs/Float32 | key 조명 세기 | 0–10000 % | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `lights/key/pose` | geometry_msgs/Pose | key 조명 위치·방향 | 단위 quaternion(±1 %) | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `lights/key/azimuth_elevation` | geometry_msgs/Vector3 | key 조명을 조준점 둘레에 배치: x 방위각, y 고도, z 거리(0 = 현재 거리 유지) | x −360–360 deg, y 0–90 deg, z 0–20 m | <span class="mde-st done">구현됨</span> | CPU 시험만, ROS 2 publish 미확인 |
+    | `lights/key/radius` | std_msgs/Float32 | key 조명 광원 반경(그림자 경계) | 0.001–5 m | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `lights/key/color_temperature` | std_msgs/Float32 | key 조명 색온도 | 1000–15000 K | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `lights/key/color` | std_msgs/ColorRGBA | key 조명 RGB 색 | 성분 0–1 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `lights/sun/enable` | std_msgs/Bool | 외광(directional) 켬/끔 | — | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `lights/sun/intensity` | std_msgs/Float32 | 외광 세기 | 0–10000 % | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `lights/sun/pose` | geometry_msgs/Pose | 외광 방향(orientation만 사용) | 단위 quaternion | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `lights/sun/azimuth_elevation` | geometry_msgs/Vector3 | 외광 방위각·고도 | x −360–360 deg, y −90–90 deg | <span class="mde-st done">구현됨</span> | ROS 2 publish 확인(Humble·Jazzy) |
+    | `lights/sun/color_temperature` | std_msgs/Float32 | 외광 색온도 | 1000–15000 K | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `lights/sun/angular_size` | std_msgs/Float32 | 외광 각크기(그림자 경계) | 0–30 deg | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
 
 ??? note "2. 카메라·렌더러 (10개)"
 
-    | Topic | 메시지 타입 | 의미 | 범위 | 상태 |
-    |---|---|---|---|---|
-    | `camera/pose` | geometry_msgs/Pose | 촬영 카메라 위치·방향 | 단위 quaternion | <span class="mde-st done">구현됨</span> |
-    | `camera/lens_flare/enable` | std_msgs/Bool | lens flare 켬/끔 | — | <span class="mde-st done">구현됨</span> |
-    | `camera/lens_flare/blades` | std_msgs/Int32 | 조리개 날 수 | 3–32 | <span class="mde-st done">구현됨</span> |
-    | `camera/lens_flare/scale` | std_msgs/Float32 | flare 크기 | 0.001–10 | <span class="mde-st done">구현됨</span> |
-    | `camera/lens_flare/aperture_rotation` | std_msgs/Float32 | 조리개 회전 | −360–360 deg | <span class="mde-st done">구현됨</span> |
-    | `camera/lens_flare/focal_length` | std_msgs/Float32 | 초점거리 | 1–1000 mm | <span class="mde-st done">구현됨</span> |
-    | `camera/lens_flare/fstop` | std_msgs/Float32 | F 값 | 0.5–64 | <span class="mde-st done">구현됨</span> |
-    | `camera/lens_flare/sensor_aspect_ratio` | std_msgs/Float32 | 센서 가로세로 비 | 0.1–10 | <span class="mde-st done">구현됨</span> |
-    | `camera/lens_flare/sensor_diagonal` | std_msgs/Float32 | 센서 대각선 | 1–100 mm | <span class="mde-st done">구현됨</span> |
-    | `render/mode` | std_msgs/String | 렌더러 모드 | `realtime` 또는 `path_tracing` | <span class="mde-st done">구현됨</span> |
+    | Topic | 메시지 타입 | 의미 | 범위 | 상태 | 확인 수준 |
+    |---|---|---|---|---|---|
+    | `camera/pose` | geometry_msgs/Pose | 촬영 카메라 위치·방향 | 단위 quaternion | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `camera/lens_flare/enable` | std_msgs/Bool | lens flare 켬/끔 | — | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `camera/lens_flare/blades` | std_msgs/Int32 | 조리개 날 수 | 3–32 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `camera/lens_flare/scale` | std_msgs/Float32 | flare 크기 | 0.001–10 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `camera/lens_flare/aperture_rotation` | std_msgs/Float32 | 조리개 회전 | −360–360 deg | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `camera/lens_flare/focal_length` | std_msgs/Float32 | 초점거리 | 1–1000 mm | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `camera/lens_flare/fstop` | std_msgs/Float32 | F 값 | 0.5–64 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `camera/lens_flare/sensor_aspect_ratio` | std_msgs/Float32 | 센서 가로세로 비 | 0.1–10 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `camera/lens_flare/sensor_diagonal` | std_msgs/Float32 | 센서 대각선 | 1–100 mm | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `render/mode` | std_msgs/String | 렌더러 모드 | `realtime` 또는 `path_tracing` | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
 
 ??? note "3. 배치·무작위화·촬영 (11개)"
 
-    | Topic | 메시지 타입 | 의미 | 범위 | 상태 |
-    |---|---|---|---|---|
-    | `layout/select` | std_msgs/Int32 | 작업대·conveyor 배치 preset 선택 | 0–63 (장면 preset 수 미만) | <span class="mde-st done">구현됨</span> |
-    | `layout/table/pose` | geometry_msgs/Pose | 작업대 자세 | 단위 quaternion | <span class="mde-st done">구현됨</span> |
-    | `layout/conveyor/pose` | geometry_msgs/Pose | conveyor 자세 | 단위 quaternion | <span class="mde-st done">구현됨</span> |
-    | `clutter/enable` | std_msgs/Bool | 주변 소품(시각 전용) 표시/숨김 | — | <span class="mde-st done">구현됨</span> |
-    | `randomize/seed` | std_msgs/Int32 | 난수 generator 재설정(재현용) | 0–2147483647 | <span class="mde-st done">구현됨</span> |
-    | `randomize/clutter` | std_msgs/Int32 | 소품 N개를 무작위 배치 | 1–64 (장면 자리 수까지) | <span class="mde-st done">구현됨</span> |
-    | `randomize/lights` | std_msgs/Empty | 조명 세기·색온도·방향 추첨 | 장면 설정 범위 | <span class="mde-st done">구현됨</span> |
-    | `randomize/materials` | std_msgs/Empty | 소품 표시 재질 추첨(물성값은 바꾸지 않음) | 장면 palette | <span class="mde-st done">구현됨</span> |
-    | `randomize/camera` | std_msgs/Empty | 카메라 시점 추첨 | 장면 설정 범위 | <span class="mde-st done">구현됨</span> |
-    | `randomize/all` | std_msgs/Empty | 위 넷을 한 번에 | — | <span class="mde-st done">구현됨</span> ROS 2 publish 확인 |
-    | `capture/trigger` | std_msgs/Int32 | N frame 촬영: RGB, 2D box, instance·semantic segmentation(선택: depth) | 1–10000 | <span class="mde-st done">구현됨</span> ROS 2 publish 확인 |
+    | Topic | 메시지 타입 | 의미 | 범위 | 상태 | 확인 수준 |
+    |---|---|---|---|---|---|
+    | `layout/select` | std_msgs/Int32 | 작업대·conveyor 배치 preset 선택 | 0–63 (장면 preset 수 미만) | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `layout/table/pose` | geometry_msgs/Pose | 작업대 자세 | 단위 quaternion | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `layout/conveyor/pose` | geometry_msgs/Pose | conveyor 자세 | 단위 quaternion | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `clutter/enable` | std_msgs/Bool | 주변 소품(시각 전용) 표시/숨김 | — | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `randomize/seed` | std_msgs/Int32 | 난수 generator 재설정(재현용) | 0–2147483647 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `randomize/clutter` | std_msgs/Int32 | 소품 N개를 무작위 배치 | 1–64 (장면 자리 수까지) | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `randomize/lights` | std_msgs/Empty | 조명 세기·색온도·방향 추첨 | 장면 설정 범위 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `randomize/materials` | std_msgs/Empty | 소품 표시 재질 추첨(물성값은 바꾸지 않음) | 장면 palette | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `randomize/camera` | std_msgs/Empty | 카메라 시점 추첨 | 장면 설정 범위 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `randomize/all` | std_msgs/Empty | 위 넷을 한 번에 | — | <span class="mde-st done">구현됨</span> | ROS 2 publish 확인(Humble·Jazzy) |
+    | `capture/trigger` | std_msgs/Int32 | N frame 촬영: RGB, 2D box, instance·semantic segmentation(선택: depth) | 1–10000 | <span class="mde-st done">구현됨</span> | ROS 2 publish 확인(Humble·Jazzy) |
 
 ??? note "4. Episode — 작업물·로봇·초기화 (9개)"
 
-    | Topic | 메시지 타입 | 의미 | 범위 | 상태 |
-    |---|---|---|---|---|
-    | `objects/spawn` | std_msgs/String (JSON) | 허용 목록의 작업물을 배치 | 장면 작업 공간 안 | <span class="mde-st done">구현됨</span> ROS 2 publish 확인 |
-    | `objects/despawn` | std_msgs/String | 작업물 제거 | 물체 이름 | <span class="mde-st done">구현됨</span> |
-    | `objects/reset` | std_msgs/String | 작업물 초기화(MDE 변형·상태도 초기화) | 물체 이름 | <span class="mde-st done">구현됨</span> |
-    | `objects/teleport` | std_msgs/String (JSON) | 작업물 위치 이동 | 장면 작업 공간 안 | <span class="mde-st done">구현됨</span> |
-    | `robot/base/teleport` | geometry_msgs/Pose | 로봇 base 이동(기울이는 회전은 거부) | 로봇 작업 공간 안 | <span class="mde-st done">구현됨</span> |
-    | `robot/posture` | std_msgs/String | 이름 있는 관절 자세 적용 | 자세 이름(관절 한계 안) | <span class="mde-st done">구현됨</span> |
-    | `episode/reset` | std_msgs/Empty | episode 전체 초기화 | — | <span class="mde-st done">구현됨</span> ROS 2 publish 확인 |
-    | `workpiece/swap` | std_msgs/String | 작업물 종류 교체(장면 재시작) | 허용 목록 | <span class="mde-st done">구현됨</span> |
-    | **출력** `status` | std_msgs/String (JSON) | 메시지마다 결과 `{topic, ok, error, commands, seed}` | — | <span class="mde-st done">구현됨</span> ROS 2 publish 확인 |
+    | Topic | 메시지 타입 | 의미 | 범위 | 상태 | 확인 수준 |
+    |---|---|---|---|---|---|
+    | `objects/spawn` | std_msgs/String (JSON) | 허용 목록의 작업물을 배치 | 장면 작업 공간 안 | <span class="mde-st done">구현됨</span> | ROS 2 publish 확인(Humble·Jazzy) |
+    | `objects/despawn` | std_msgs/String | 작업물 제거 | 물체 이름 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `objects/reset` | std_msgs/String | 작업물 초기화(MDE 변형·상태도 초기화) | 물체 이름 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `objects/teleport` | std_msgs/String (JSON) | 작업물 위치 이동 | 장면 작업 공간 안 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `robot/base/teleport` | geometry_msgs/Pose | 로봇 base 이동(기울이는 회전은 거부) | 로봇 작업 공간 안 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `robot/posture` | std_msgs/String | 이름 있는 관절 자세 적용 | 자세 이름(관절 한계 안) | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | `episode/reset` | std_msgs/Empty | episode 전체 초기화 | — | <span class="mde-st done">구현됨</span> | ROS 2 publish 확인(Humble·Jazzy) |
+    | `workpiece/swap` | std_msgs/String | 작업물 종류 교체(장면 재시작) | 허용 목록 | <span class="mde-st done">구현됨</span> | host 시험·GPU 장면 시험(ROS 없이) |
+    | **출력** `status` | std_msgs/String (JSON) | 메시지마다 결과 `{topic, ok, error, commands, seed}` | — | <span class="mde-st done">구현됨</span> | ROS 2 publish 확인(Humble·Jazzy) |
 
     장면마다 받는 episode 동작이 다릅니다. 예를 들어 컵 쥐기 장면은 reset·episode reset·swap만 받고 spawn·despawn·teleport는 거부합니다.
 
 ??? note "5. 카메라 조건 — 영상 후처리 (18개)"
 
-    | Topic | 메시지 타입 | 의미 | 범위 | 상태 |
-    |---|---|---|---|---|
-    | `camera/condition/enable` | std_msgs/Bool | 영상 조건 켬/끔 | — | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | `camera/condition/preset` | std_msgs/String | 조건 preset 선택 | preset 이름 | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | `camera/condition/seed` | std_msgs/Int32 | 기준 seed | 0–2147483647 | <span class="mde-st done">구현됨</span> |
-    | `camera/condition/randomize` | std_msgs/Empty | preset·seed 추첨 | — | <span class="mde-st done">구현됨</span> |
-    | `camera/condition/clear_overrides` | std_msgs/Empty | 개별 지정값 모두 해제 | — | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | `camera/condition/exposure_ev` | std_msgs/Float32 | 노출 오차 | −6–6 EV | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | `camera/condition/illumination` | std_msgs/Float32 | 조도 배율 | 0.001–100 | <span class="mde-st done">구현됨</span> |
-    | `camera/condition/color_temperature` | std_msgs/Float32 | 장면 색온도(white balance) | 1667–25000 K | <span class="mde-st done">구현됨</span> |
-    | `camera/condition/flicker_hz` | std_msgs/Float32 | 조명 flicker 전원 주파수 | 40–70 Hz | <span class="mde-st done">구현됨</span> |
-    | `camera/condition/flicker_depth` | std_msgs/Float32 | flicker 변조 깊이 | 0–1 | <span class="mde-st done">구현됨</span> |
-    | `camera/condition/haze_density` | std_msgs/Float32 | 영상 haze 감쇠 정도 | 0–10 /m | <span class="mde-st done">구현됨</span> |
-    | `camera/condition/motion_blur` | std_msgs/Float32 | motion blur 속도 | 0–100000 px/s | <span class="mde-st done">구현됨</span> |
-    | `camera/condition/defocus` | std_msgs/Float32 | 초점 흐림 반경 | 0–50 px | <span class="mde-st done">구현됨</span> |
-    | `camera/condition/read_noise` | std_msgs/Float32 | 센서 read noise | 0–1000 e− | <span class="mde-st done">구현됨</span> |
-    | `camera/condition/jpeg_quality` | std_msgs/Int32 | JPEG 압축 품질 | 1–100 | <span class="mde-st done">구현됨</span> |
-    | `camera/condition/drop_rate` | std_msgs/Float32 | stream frame 손실 확률 | 0–1 | <span class="mde-st done">구현됨</span> |
-    | **출력** `camera/condition/status` | std_msgs/String (JSON) | 메시지마다 결과 | — | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | **출력** `camera/condition/labels` | std_msgs/String (JSON) | 처리한 frame마다 조건 라벨 | — | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
+    | Topic | 메시지 타입 | 의미 | 범위 | 상태 | 확인 수준 |
+    |---|---|---|---|---|---|
+    | `camera/condition/enable` | std_msgs/Bool | 영상 조건 켬/끔 | — | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | `camera/condition/preset` | std_msgs/String | 조건 preset 선택 | preset 이름 | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | `camera/condition/seed` | std_msgs/Int32 | 기준 seed | 0–2147483647 | <span class="mde-st done">구현됨</span> | host 시험 |
+    | `camera/condition/randomize` | std_msgs/Empty | preset·seed 추첨 | — | <span class="mde-st done">구현됨</span> | host 시험 |
+    | `camera/condition/clear_overrides` | std_msgs/Empty | 개별 지정값 모두 해제 | — | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | `camera/condition/exposure_ev` | std_msgs/Float32 | 노출 오차 | −6–6 EV | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | `camera/condition/illumination` | std_msgs/Float32 | 조도 배율 | 0.001–100 | <span class="mde-st done">구현됨</span> | host 시험 |
+    | `camera/condition/color_temperature` | std_msgs/Float32 | 장면 색온도(white balance) | 1667–25000 K | <span class="mde-st done">구현됨</span> | host 시험 |
+    | `camera/condition/flicker_hz` | std_msgs/Float32 | 조명 flicker 전원 주파수 | 40–70 Hz | <span class="mde-st done">구현됨</span> | host 시험 |
+    | `camera/condition/flicker_depth` | std_msgs/Float32 | flicker 변조 깊이 | 0–1 | <span class="mde-st done">구현됨</span> | host 시험 |
+    | `camera/condition/haze_density` | std_msgs/Float32 | 영상 haze 감쇠 정도 | 0–10 /m | <span class="mde-st done">구현됨</span> | host 시험 |
+    | `camera/condition/motion_blur` | std_msgs/Float32 | motion blur 속도 | 0–100000 px/s | <span class="mde-st done">구현됨</span> | host 시험 |
+    | `camera/condition/defocus` | std_msgs/Float32 | 초점 흐림 반경 | 0–50 px | <span class="mde-st done">구현됨</span> | host 시험 |
+    | `camera/condition/read_noise` | std_msgs/Float32 | 센서 read noise | 0–1000 e− | <span class="mde-st done">구현됨</span> | host 시험 |
+    | `camera/condition/jpeg_quality` | std_msgs/Int32 | JPEG 압축 품질 | 1–100 | <span class="mde-st done">구현됨</span> | host 시험 |
+    | `camera/condition/drop_rate` | std_msgs/Float32 | stream frame 손실 확률 | 0–1 | <span class="mde-st done">구현됨</span> | host 시험 |
+    | **출력** `camera/condition/status` | std_msgs/String (JSON) | 메시지마다 결과 | — | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | **출력** `camera/condition/labels` | std_msgs/String (JSON) | 처리한 frame마다 조건 라벨 | — | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
 
 ??? note "6. 카메라 조건 — 렌더러 쪽 (11개)"
 
-    | Topic | 메시지 타입 | 의미 | 범위 | 상태 |
-    |---|---|---|---|---|
-    | `camera/render/flicker/enable` | std_msgs/Bool | 천장 조명 flicker 켬/끔 | — | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | `camera/render/flicker/mains_hz` | std_msgs/Float32 | flicker 전원 주파수 | 40–70 Hz | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | `camera/render/flicker/depth` | std_msgs/Float32 | flicker 깊이 | 0–1 | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | `camera/render/backlight/enable` | std_msgs/Bool | 창 역광 켬/끔 | — | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | `camera/render/backlight/intensity` | std_msgs/Float32 | 역광 세기 | 0–10000 % | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | `camera/render/backlight/pose` | geometry_msgs/Pose | 역광 창 위치·방향 | 단위 quaternion | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | `camera/render/glare/enable` | std_msgs/Bool | 대상 표면 금속 반사 look 켬/끔(표시 재질만) | — | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | `camera/render/glare/roughness` | std_msgs/Float32 | 반사 거칠기 | 0.01–1 | <span class="mde-st done">구현됨</span> Isaac ROS 2 확인 |
-    | `camera/render/haze/enable` | std_msgs/Bool | renderer fog 켬/끔 | — | <span class="mde-st plan">계획</span> 설정은 적용되나 영상에 작용하지 않음(GPU 장면 시험 FAIL). 거리에 따른 haze는 영상 후처리 `haze_density`로 냅니다 |
-    | `camera/render/haze/density` | std_msgs/Float32 | renderer fog 밀도 | 0–10 /m | <span class="mde-st plan">계획</span> 위와 같음 |
-    | `camera/render/workpiece/randomize` | std_msgs/Empty | 작업물 표시 외관 추첨 | — | <span class="mde-st done">구현됨</span> GPU 장면 시험 PASS, ROS 2로는 아직 보내 보지 않음 |
+    | Topic | 메시지 타입 | 의미 | 범위 | 상태 | 확인 수준 |
+    |---|---|---|---|---|---|
+    | `camera/render/flicker/enable` | std_msgs/Bool | 천장 조명 flicker 켬/끔 | — | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | `camera/render/flicker/mains_hz` | std_msgs/Float32 | flicker 전원 주파수 | 40–70 Hz | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | `camera/render/flicker/depth` | std_msgs/Float32 | flicker 깊이 | 0–1 | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | `camera/render/backlight/enable` | std_msgs/Bool | 창 역광 켬/끔 | — | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | `camera/render/backlight/intensity` | std_msgs/Float32 | 역광 세기 | 0–10000 % | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | `camera/render/backlight/pose` | geometry_msgs/Pose | 역광 창 위치·방향 | 단위 quaternion | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | `camera/render/glare/enable` | std_msgs/Bool | 대상 표면 금속 반사 look 켬/끔(표시 재질만) | — | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | `camera/render/glare/roughness` | std_msgs/Float32 | 반사 거칠기 | 0.01–1 | <span class="mde-st done">구현됨</span> | Isaac Sim ROS 2 확인(Humble) |
+    | `camera/render/haze/enable` | std_msgs/Bool | renderer fog 켬/끔 | — | <span class="mde-st plan">계획</span> | GPU 장면 시험 FAIL — 설정은 적용되나 영상에 작용하지 않음. 거리에 따른 haze는 영상 후처리 `haze_density`로 냅니다 |
+    | `camera/render/haze/density` | std_msgs/Float32 | renderer fog 밀도 | 0–10 /m | <span class="mde-st plan">계획</span> | GPU 장면 시험 FAIL(위와 같음) |
+    | `camera/render/workpiece/randomize` | std_msgs/Empty | 작업물 표시 외관 추첨 | — | <span class="mde-st done">구현됨</span> | GPU 장면 시험 PASS, ROS 2로는 아직 보내 보지 않음 |
 
 ```bash
 ros2 topic pub --once /mde/env/lights/sun/azimuth_elevation geometry_msgs/msg/Vector3 "{x: 135.0, y: 30.0, z: 0.0}"
