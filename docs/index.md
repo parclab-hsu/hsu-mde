@@ -5,7 +5,7 @@ hide:
 
 # Manufacturing Deformation Engine (MDE)
 
-<span class="mde-badge">연구개발 진행 중</span> · **한성대학교 PARC Lab** · 기준일 2026-11-19
+<span class="mde-badge">연구개발 진행 중</span> · **한성대학교 PARC Lab** · 기준일 2026-11-28
 
 MDE는 로봇이 물체를 **누르고 쥐고 집을 때, 물체가 얼마나 눌리고 손을 뗀 뒤 무엇이 남는지**를 계산하는 시뮬레이션 엔진입니다.
 NVIDIA Isaac Sim·Isaac Lab 안에서 로봇 손의 동작과 함께 매 스텝 돌며, 눌린 깊이·남은 자국·주름·늘어남과
@@ -34,12 +34,13 @@ MDE는 물리 엔진이 낸 접촉을 받아 소재별로 변형과 남는 상�
 손에 붙은 센서로는 물체 쪽의 상태(어디를 집었는지, 접힘 정렬, 늘어남, 남은 주름·자국)를 읽을 수 없습니다.
 MDE는 그 값을 시뮬레이션 안에서 내 주므로, 강화학습의 판정과 학습 데이터의 라벨로 쓸 수 있습니다.
 범용 물리 엔진과 MDE의 역할 차이는 [NVIDIA Newton·RaiSim과 비교](newton.md)에 정리했습니다.
+기능별 구현 상태(구현됨·부분·계획)와 로드맵은 [MDE 소개 · 기능](features.md)에 모았습니다.
 
 ## 동작 구조
 
 [![MDE 아키텍처](images/mde-architecture.png)](images/mde-architecture.png)
 
-<p style="text-align:center"><small><b>MDE 아키텍처</b> — 위: 시뮬레이터의 접촉이 Contact Patch로 표본화되고, Material Profile과 Response Model을 거쳐 변형 상태·이력이 된 뒤 형상 갱신과 모델 상태 라벨로 나갑니다. 아래: 강화학습 데모도 같은 엔진으로 매 스텝 판정합니다. 클릭하면 원본 크기로 볼 수 있습니다.</small></p>
+<p style="text-align:center"><small><b>MDE 아키텍처</b> — 가운데: 시뮬레이터의 접촉이 Contact Patch로 표본화되고, Material Profile과 Response Model을 거쳐 변형 상태·이력이 된 뒤 형상 갱신과 모델 상태 라벨로 나갑니다. 맨 위: ROS 2 환경 제어와 합성 데이터 출력, 그 아래: 강화학습 데모도 같은 엔진으로 매 스텝 판정합니다. 맨 아래: 데이터 평가 loop. 점선은 계획입니다(<a href="features/">MDE 소개 · 기능</a>). 클릭하면 원본 크기로 볼 수 있습니다.</small></p>
 
 1. **접촉 받기** — 물리 엔진이 매 스텝 낸 접촉 위치·방향·하중을 대상 표면의 **Contact Patch**로 표본화합니다.
 2. **소재 응답 계산** — **Material Profile**(값마다 단위·허용 범위·출처·확정 여부를 함께 보관)과 **Response Model**이 접촉에 대한 변형을 계산합니다.
@@ -112,7 +113,8 @@ Allegro Hand가 과제를 강화학습(PPO)으로 배운 결과입니다. 같은
 - 모든 입력은 허용 범위를 검사하며, 범위를 벗어난 메시지는 적용하지 않고 `status`로 사유를 돌려줍니다.
 - 무작위화는 화면에 보이는 조건만 바꿉니다. 접촉·변형 계산에 쓰는 소재 물성값은 바뀌지 않습니다.
 - ROS 2 Humble·Jazzy에서 정의가 같은 표준 메시지 타입(`std_msgs`, `geometry_msgs`)만 사용합니다.
-- 장면 안에서 같은 메시지로 조명·무작위화·촬영이 적용되는 것을 확인했습니다. ROS 2 네트워크로 보내 적용하는 시험은 아직 하지 않았습니다.
+- 다른 프로세스에서 ROS 2로 보낸 메시지가 장면에 적용되는 것을 Humble·Jazzy에서 각각 확인했습니다(2026-11-20, 9건 응답 9/9). 서로 다른 distro 사이의 송수신은 확인하지 않았습니다.
+- 전체 topic 표(카메라 조건·episode 포함)와 topic별 확인 상태는 [MDE 소개 · 기능](features.md#ros2-topics)에 있습니다.
 
 ```bash
 ros2 topic pub --once /mde/env/lights/ceiling/intensity std_msgs/msg/Float32 "{data: 50.0}"
@@ -179,7 +181,7 @@ MDE 소스는 공개하지 않습니다. **GitHub 저장소 주소는 [kblee@han
 | v2 소성·잔류·구조 | 영구변형, 얇은 벽 용기 | 일부 구현 |
 | v3 이력·마모 | 장기 사용 상태·마모·공차 변화 | 계획 |
 
-다음 계획(각 페이지에 적은 내용):
+다음 계획(각 페이지에 적은 내용, 전체 로드맵은 [MDE 소개 · 기능](features.md#roadmap)):
 
 - PET 컵·물병 옆벽 강성을 실물로 재고, 손끝 힘이 Allegro Hand 능력 안에 들도록 꽉 쥐기 설정을 다시 봅니다([추정값·힘 점검](check.md)).
 - 겹친 천을 집는 것을 천 모델이 다루도록 바꾼 뒤 수건 2번 접기를 다시 학습합니다([수건 접기](towel.md)).
