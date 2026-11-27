@@ -195,7 +195,9 @@ MDE는 그 빈 곳을 맡는 층으로 연동할 계획입니다. SimReady asset
 - **라이선스.** SimReady asset은 asset마다 라이선스가 다릅니다. 사용 전에 각 asset의 라이선스 표기를 확인하고, asset 파일이나 그 형상을 이 사이트에 다시 배포하지 않습니다.
 - **버전.** SimReady 사양과 검사 도구는 판이 자주 바뀝니다. 결과마다 검사한 사양 이름과 판을 함께 기록할 계획입니다.
 
-아직 SimReady asset으로 시험한 결과는 없습니다. 먼저 GPU 없이 asset의 정보를 읽고 검사하는 단계를 만든 뒤, Isaac Sim 장면에서
+공개 SimReady asset 네 개를 읽어 규격을 설명하고 MDE 공개 Profile 과 비교한 결과는 [SimReady asset 과 MDE](simready.md) 페이지에 있습니다(asset 파일 분석, GPU 장면 시험 전).
+
+아직 SimReady asset으로 장면에서 시험한 결과는 없습니다. 먼저 GPU 없이 asset의 정보를 읽고 검사하는 단계를 만든 뒤, Isaac Sim 장면에서
 라벨과 판정을 확인하는 순서로 진행할 계획입니다.
 
 ## 로드맵 { #roadmap }
