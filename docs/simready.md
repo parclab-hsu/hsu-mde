@@ -260,8 +260,12 @@ MDE 쪽은 이 사이트에 이미 공개한 Profile 만 씁니다: 16 oz 종이
 - opt-in 없이 덮는 묶음이 발견되면 [엄격 모드](features.md#strict-mode)에서는 오류로 멈추고, 엄격 모드가 아니면 경고를 냅니다.
   어느 경우든 조용히 넘어가지 않습니다.
 - asset 파일은 고치지 않습니다. 묶음은 asset 을 불러온 장면 쪽에만 적습니다.
-- 확인은 **USD 수준에서만** 했습니다(직접 만든 작은 시험 asset). PhysX 가 실제로 같은 재질로 계산하는지(기울인 판 위 미끄러짐 시험)는
-  아직 돌리지 않았습니다.
+- USD 수준 확인에 더해 **PhysX 미끄러짐 시험을 통과했습니다**(2026-11-28, 직접 만든 작은 시험 asset, Isaac Sim).
+  asset 재질과 MDE 재질의 마찰이 다른 시험 asset 을 기울인 판에 올려 세 방식을 비교했습니다.
+  기본 방식에서는 asset 재질이 이겨(경고 발생) 거의 움직이지 않았고, opt-in 두 방식에서는 MDE 마찰대로 미끄러졌습니다.
+  즉 opt-in 방식을 켜면 PhysX 가 실제로 MDE 마찰로 계산합니다.
+- 실제 SimReady asset 하나하나에 대해서는 아직 PhysX 시험을 돌리지 않았습니다. 그래서 SimReady asset 의 opt-in 결과에는
+  계속 「USD 수준만 확인」을 붙입니다(10절).
 
 ## 6. 대응 계획
 
@@ -270,7 +274,7 @@ MDE 쪽은 이 사이트에 이미 공개한 Profile 만 씁니다: 16 oz 종이
 | 읽기(ingest) | <span class="mde-st part">부분</span> | 구현됨: asset 을 고치지 않고 읽기만 하는 ingest. 단위·강체·질량·재질·라벨·라이선스를 asset 선언값으로 보고하고, asset 에 적혀 있지 않은 값은 채우지 않고 「unknown」 그대로 둡니다. 5.5 처럼 하위 prim 재질이 MDE 재질을 덮을 위험이 있으면 표시합니다. 계획: MDE 값을 별도 USD layer 로 덧씌우는 일(asset 원본은 그대로) |
 | 「실측 아님」으로 가져오기 | <span class="mde-st done">구현됨</span> | asset 의 질량·마찰에 「asset 선언값, 실측 아님」(asset-declared, not measured) 출처를 붙입니다. 질량이 MDE 기본 Profile 값이나 asset 안의 다른 질량 값과 2배 넘게 다르면 큰 경고를 냅니다. 반발은 기록만 하고 MDE 판정에 쓰지 않습니다(10절) |
 | PhysX variant 선택 | <span class="mde-st plan">계획</span> | asset 을 장면에 넣을 때 PhysX variant 를 명시적으로 고르고, 근사가 없거나 입구를 막는 근사면 경고합니다 |
-| 재질 덮어쓰기 확인 | <span class="mde-st part">부분</span> | 구현됨: MDE 재질을 덮는 하위 묶음 검출, opt-in 묶는 방식 두 가지(MDE 재질이 이기도록 묶고 묶은 뒤 모든 충돌 형상을 다시 확인), opt-in 이 없으면 엄격 모드에서 오류·그 밖에는 경고. SimReady asset 을 읽을 때 덮는 묶음이 있는 강체는 opt-in 이 없으면 MDE 계산에서 빼고, opt-in 결과에는 「USD 수준만 확인」을 표시합니다(10절). asset 파일은 고치지 않습니다. USD 수준에서만 확인했고, PhysX 수준 확인(기울인 판 위 미끄러짐 시험)은 아직 하지 않았습니다(5.5) |
+| 재질 덮어쓰기 확인 | <span class="mde-st part">부분</span> | 구현됨: MDE 재질을 덮는 하위 묶음 검출, opt-in 묶는 방식 두 가지(MDE 재질이 이기도록 묶고 묶은 뒤 모든 충돌 형상을 다시 확인), opt-in 이 없으면 엄격 모드에서 오류·그 밖에는 경고. SimReady asset 을 읽을 때 덮는 묶음이 있는 강체는 opt-in 이 없으면 MDE 계산에서 빼고, opt-in 결과에는 「USD 수준만 확인」을 표시합니다(10절). asset 파일은 고치지 않습니다. 시험 asset 으로 PhysX 미끄러짐 시험을 통과했습니다. 실제 SimReady asset 별 PhysX 시험은 아직입니다(5.5) |
 | asset 형상에 맞춘 Profile | <span class="mde-st part">부분</span> | 형상은 asset 에서 읽은 값(asset 선언)을 쓰고, 재료 값은 같은 소재의 공개 기본 Profile 값을 가정으로 가져옵니다. 모든 값에 「검증 안 됨」을 표시하며, 쓰기 전에 사람이 검토합니다. 8절 비교에 이렇게 만든 Profile 을 썼습니다. 재료 값을 asset 에 맞추는 일과 실물 보정은 하지 않았습니다 |
 | 검사 도구를 CI 에 | <span class="mde-st plan">계획</span> | `simready-validate` 결과를 판마다(3.1.0·4.0.0·5.0.0) 저장하고, 직접 만든 작은 시험 asset 으로 CI 에서 돌립니다 |
 
@@ -411,7 +415,7 @@ MDE 의 읽기(ingest) 단계는 asset 파일을 고치지 않고 다음 규칙�
 | asset 안의 질량 출처끼리 비교 | <span class="mde-st done">구현됨</span> | 같은 asset 이 질량을 여러 곳에 적는 경우(물리 엔진 variant 를 고른 상태의 강체 질량, asset 기본 variant 선택에서의 질량, asset metadata 의 질량)를 모두 기록하고, 두 값이 2배 넘게 다르면 큰 경고를 냅니다. 쓰는 값은 PhysX variant 를 고른 상태의 강체 질량이며 어느 값을 썼는지 적습니다. 받은 asset 중에는 같은 asset 안에서 질량이 4배 넘게 다른 것이 있었습니다 |
 | 마찰 결합 방식 | <span class="mde-st done">구현됨</span> | MDE 는 자기 규칙(작은 쪽)을 유지합니다. asset 이 적은 결합 방식, 또는 「적혀 있지 않음 → PhysX 평균」은 기록으로만 남깁니다 |
 | 반발 (restitution) | <span class="mde-st done">구현됨</span> | 기록만 하고 MDE 판정에는 쓰지 않습니다 |
-| 하위 prim 재질 묶음 | <span class="mde-st part">부분</span> | 강체마다 5.5 의 묶는 방식 세 가지(기본·opt-in 두 가지)에서 asset 묶음이 MDE 재질을 덮는지 기록합니다. 덮는 강체는 opt-in 방식이 MDE 재질을 이기게 하지 않는 한 MDE 계산에서 뺍니다. 엄격 모드에서는 오류로 멈추고, 그 밖에는 큰 경고와 함께 「판정하지 않음」으로 표시하며 그 asset 의 Profile 을 만들지 않습니다. opt-in 으로 넣은 결과에는 PhysX 확인 전까지 「USD 수준만 확인」(USD-level only)을 붙입니다 |
+| 하위 prim 재질 묶음 | <span class="mde-st part">부분</span> | 강체마다 5.5 의 묶는 방식 세 가지(기본·opt-in 두 가지)에서 asset 묶음이 MDE 재질을 덮는지 기록합니다. 덮는 강체는 opt-in 방식이 MDE 재질을 이기게 하지 않는 한 MDE 계산에서 뺍니다. 엄격 모드에서는 오류로 멈추고, 그 밖에는 큰 경고와 함께 「판정하지 않음」으로 표시하며 그 asset 의 Profile 을 만들지 않습니다. opt-in 으로 넣은 결과에는 「USD 수준만 확인」(USD-level only)을 붙입니다. 묶는 방식 자체는 시험 asset 으로 PhysX 미끄러짐 시험을 통과했지만(5.5), 실제 asset 별 PhysX 시험은 아직입니다 |
 | 상표 tag | <span class="mde-st done">구현됨</span> | 9절의 육안 판정 tag 를 asset 마다 붙이고, 데모에는 상표가 보이지 않는 asset 을 먼저 씁니다 |
 | 플라스틱 컵 | <span class="mde-st done">구현됨</span> | 두꺼운 재사용 플라스틱 컵(3절의 plastic cup, Wikidata Q3089098)은 MDE 판정 범위 밖이라 가져오기를 거부합니다. 3·4절의 비교는 asset 설명용으로만 남깁니다 |
 | asset 형상에 맞춘 Profile | <span class="mde-st part">부분</span> | 6절과 같습니다. 만든 Profile 의 값은 모두 「가정·검증 안 됨」으로 남습니다 |
