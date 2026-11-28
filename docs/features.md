@@ -25,7 +25,7 @@ MDE(Manufacturing Deformation Engine)는 로봇이 물체를 누르고 쥐고 �
 | 기능 | 상태 | 내용 | 한계 |
 |---|---|---|---|
 | 접촉에 의한 변형 계산 (시뮬레이션) | <span class="mde-st done">구현됨</span> | PhysX가 낸 접촉을 받아 소재별 눌린 깊이, 손을 뗀 뒤 남은 자국, 한계 초과(금·찢김·항복)를 매 스텝 계산합니다. 강화학습의 판정에도 씁니다 | 소재 값은 문헌·제품 자료에서 잡은 **추정값·잠정값**이며 실측 보정 전입니다 |
-| 합성 데이터 생성(SDG)과 자동 라벨 | <span class="mde-st done">구현됨</span> | RGB와 함께 2D bounding box, instance·semantic segmentation을 자동으로 저장합니다. COCO·YOLO 형식으로 내보내고, 내보낼 때 mask에서 다시 계산한 bbox와 저장된 bbox를 서로 대조합니다 | — |
+| 합성 데이터 생성(SDG)과 자동 라벨 | <span class="mde-st done">구현됨</span> | RGB와 함께 2D bounding box, instance·semantic segmentation을 자동으로 저장합니다. COCO·YOLO 형식으로 내보내고, 내보낼 때 mask에서 다시 계산한 bbox와 저장된 bbox를 서로 대조합니다. 내보내는 bbox·segmentation·면적과 가림 비율은 같은 화소에서 셉니다(아래 [합성 데이터 라벨](#sdg-labels) 절) | — |
 | 조명 무작위화·제어 | <span class="mde-st done">구현됨</span> | 천장 조명·작업대 조명(key)·외광(sun)의 세기(기준 대비 %), 위치, key·sun의 방위각·고도, 방향(단위 quaternion), 색온도·색을 바꿉니다 | key 조명 방위각·고도 topic은 CPU 시험만 했습니다(아래 topic 표) |
 | 소품·작업물 배치 무작위화 | <span class="mde-st done">구현됨</span> | 주변 소품(시각 전용) 배치, 작업물의 위치·자세·크기를 seed로 재현할 수 있게 추첨합니다 | 무작위화는 화면 조건만 바꿉니다. 소재 물성값은 바꾸지 않습니다 |
 | ROS 2 환경 제어 `/mde/env` | <span class="mde-st done">구현됨</span> | 조명·카메라·렌더·배치·무작위화·촬영·episode를 ROS 2 topic으로 제어합니다. 범위 밖 값은 잘라 쓰지 않고 거부하며 `status`로 사유를 돌려줍니다. 2026-11-20 다른 프로세스에서 보낸 ROS 2 메시지가 장면에 적용되는 것을 Humble·Jazzy에서 각각 확인했습니다(응답 9/9) | 서로 다른 distro 사이의 송수신은 확인하지 않았습니다 |
@@ -41,7 +41,7 @@ MDE(Manufacturing Deformation Engine)는 로봇이 물체를 누르고 쥐고 �
 | Docker 실행 묶음 | <span class="mde-st part">부분</span> | Isaac Sim 5.0.0·Isaac Lab 2.2.1을 host에 설치하지 않고 Docker 컨테이너로 실행합니다([설치와 예제 실행](index.md#설치와-예제-실행)) | 장면·설정·의존성을 한 묶음으로 내려받아 바로 돌리는 형태는 일부만 됩니다 |
 | 생성형 AI 증강 | <span class="mde-st plan">계획</span> | 라벨(segmentation·depth)은 그대로 두고 영상만 바꾸는 interface와 검사 규칙은 있습니다 | 생성 모델은 붙이지 않았습니다. 모델·데이터 라이선스 검토 뒤 결정합니다 |
 | 엄격 모드(물성·물리 값 기본값 금지) | <span class="mde-st done">구현됨</span> | 소재·물리 값이 빠지면 오류로 멈추고, 값을 몰라 `unknown` 으로 적은 항목은 채우지 않습니다. 아래 [엄격 모드](#strict-mode) 절 | 예전 실행 재현을 위해 기본값을 명시적으로 허용할 수 있고, 그때 쓴 기본값은 실행 기록에 남습니다 |
-| SimReady asset 연동 | <span class="mde-st plan">계획</span> | 아래 [NVIDIA SimReady asset 연동](#simready) 절 | 아직 SimReady asset으로 시험한 결과가 없습니다 |
+| SimReady asset 연동 | <span class="mde-st part">부분</span> | asset을 고치지 않고 읽는 단계와 가져오기 규칙(질량은 「asset 선언값, 실측 아님」, 2배 넘는 차이는 경고 등)은 구현했습니다. 아래 [NVIDIA SimReady asset 연동](#simready) 절 | 아직 SimReady asset을 Isaac Sim 장면에서 시험한 결과가 없습니다 |
 | sim-to-real 미끄러짐·접촉 변형 재현 | <span class="mde-st plan">계획(실측 전)</span> | 실물 측정과 대조하는 단계입니다 | 실물 측정을 하지 않았습니다. 시뮬레이션 결과를 실물 재현으로 주장하지 않습니다 |
 
 ## 엄격 모드 <span class="mde-st done">구현됨</span> { #strict-mode }
@@ -53,6 +53,24 @@ MDE 는 소재·물리 값이 빠졌을 때 그럴듯한 숫자를 대신 채워
 - 예전 실행을 재현할 때만 기본값을 명시적으로 허용(opt-out)할 수 있습니다. 이때 적용한 기본값은 하나하나 실행 기록에 남깁니다.
 - 코드 안에서 값이 빠졌을 때 조용히 채우던 기본값 26 곳을 찾아 모두 없앴습니다. 기존 Profile·설정으로 다시 계산한 결과는
   바꾸기 전 코드의 결과와 bit 단위로 같습니다.
+
+## 합성 데이터 라벨: bbox 와 가림 비율 <span class="mde-st done">구현됨</span> { #sdg-labels }
+
+합성 데이터를 COCO·YOLO 로 내보낼 때 bounding box(bbox), segmentation, 면적, 가림 비율이 **같은 화소**를 가리키도록 맞췄습니다.
+
+- **렌더 쪽 bbox 의 뜻.** Isaac Sim Replicator 가 저장하는 tight bbox 는 그 물체 prim 과 그 아래 prim 전체를 덮습니다.
+  아래 prim 에 따로 라벨이 붙어 있어 자기 bbox 를 따로 받는 경우에도, 그 화소가 위 물체의 bbox 를 넓힙니다.
+- **내보내는 bbox 기본값.** 내보낸 mask(그 물체 자신의 화소)의 tight box 를 bbox 로 씁니다. 그래서 bbox·segmentation·면적이 같은 화소에서
+  나옵니다. annotation 마다 bbox 를 어디서 얻었는지(`bbox_source`)를 적고, 렌더 쪽 bbox 와 다르면 그 값도 함께 남깁니다.
+  렌더 쪽 bbox 를 그대로 쓰는 방식도 option 으로 남겨 두었습니다.
+- **교차 확인.** 렌더 쪽 bbox 는 물체와 그 아래 prim 전체의 화소로 다시 계산한 bbox 와 대조합니다. 따로 라벨이 붙은 아래 prim 때문에
+  넓어진 bbox 는 불일치가 아니라 「겹친 prim」으로 따로 적습니다.
+- 아래 「합성 데이터 자동 라벨」 영상을 찍은 촬영에서 교차 확인이 보고했던 bbox 불일치는 렌더 쪽 bbox 의 오류가 아니었습니다.
+  교차 확인이 물체 자신의 화소만 비교한다고 가정한 탓이었고, 위처럼 고친 뒤 그 촬영의 불일치는 0 입니다.
+- **가림 비율.** 카메라 조건 후처리로 손 가림 같은 가림을 입힐 때, 가림 비율도 내보내는 bbox 와 같은 화소 집합으로 셉니다
+  (기본: 물체 자신의 화소, 렌더 쪽 bbox 를 쓸 때는 아래 prim 까지 포함한 화소). annotation 마다 어느 화소 집합으로 셌는지(`occlusion_mask`)를
+  적고, 비율의 화소 집합이 bbox 의 화소 집합과 다르면 확인 결과에 목록으로 남깁니다.
+  예전 방식은 option(legacy)으로 남겨 두었고, 그 option 은 예전 출력을 byte 단위로 그대로 냅니다.
 
 ## 기능 시험 영상 { #feature-videos }
 
@@ -198,9 +216,10 @@ ros2 topic pub --once /mde/env/randomize/all std_msgs/msg/Empty "{}"
 ros2 topic pub --once /mde/env/capture/trigger std_msgs/msg/Int32 "{data: 100}"
 ```
 
-## NVIDIA SimReady asset 연동 <span class="mde-st plan">계획</span> { #simready }
+## NVIDIA SimReady asset 연동 <span class="mde-st part">부분</span> { #simready }
 
-기준일 2026-11-27 · [SimReady Foundation](https://github.com/NVIDIA/simready-foundation) 공개 사양(2026-11-23 판)과 Isaac Sim 5.0.0 기준 · 이 절의 모든 항목은 **계획**입니다
+기준일 2026-11-27 · [SimReady Foundation](https://github.com/NVIDIA/simready-foundation) 공개 사양(2026-11-23 판)과 Isaac Sim 5.0.0 기준 · 아래 표의 상태는 2026-11-27 기준입니다.
+그 뒤 2026-11-28 에 읽기 단계와 가져오기 규칙을 구현했습니다([SimReady asset 과 MDE 10절](simready.md#import-rules))
 
 **SimReady**는 NVIDIA가 정한 OpenUSD 기반 시뮬레이션용 asset 규격입니다([NVIDIA 용어집: What Is SimReady?](https://www.nvidia.com/en-us/glossary/simready/),
 [SimReady Foundation 시작 안내](https://nvidia.github.io/simready-foundation/latest/guides/getting_started.html)). 단위·좌표축, 강체·충돌 형상·질량,
@@ -244,7 +263,7 @@ MDE는 그 빈 곳을 맡는 층으로 연동할 계획입니다. SimReady asset
 | 2026-11-19 ~ 11-28 | 환경 제어·합성 데이터(SDG) | <span class="mde-st done">구현됨</span> | ROS 2 `/mde/env`, run config, 자동 라벨·COCO/YOLO, 카메라 조건. 디지털 트윈은 일반 작업 셀만(부분) |
 | 2026-11-28 | ODD·SOTIF식 분류와 평가 loop | <span class="mde-st done">구현됨</span> | CPU 시험까지. 실제 합성 데이터 실행에 loop를 끝까지 돌리는 것은 계획 |
 | 다음 | 생성형 AI 증강 | <span class="mde-st plan">계획</span> | interface만 있음. 모델은 라이선스 검토 뒤 |
-| 다음 | [SimReady asset 연동](#simready) | <span class="mde-st plan">계획</span> | 읽기·검사부터 |
+| 2026-11-28 · 다음 | [SimReady asset 연동](#simready) | <span class="mde-st part">부분</span> | 읽기와 가져오기 규칙은 구현. Isaac Sim 장면 시험은 다음 |
 | 다음 | sim-to-real 미끄러짐·접촉 변형 재현 | <span class="mde-st plan">계획(실측 전)</span> | 실물 측정이 먼저입니다 |
 
 !!! warning "읽을 때"

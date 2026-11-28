@@ -7,6 +7,8 @@
 MDE 의 공개 Material Profile 과 비교한 결과를 정리합니다. 연동 계획의 요약은 [MDE 소개 · 기능](features.md#simready)에 있습니다.
 
 - 이 페이지의 분석은 **asset 파일을 읽어서 한 것**입니다. GPU 장면에서 asset 을 움직여 본 결과는 아직 없습니다.
+- 네 asset 을 읽은 뒤 두 공개 pack 에서 asset 700개를 더 받아 같은 방식으로 읽었습니다. 그 요약은 [9절](#batch-700), MDE 가 SimReady asset 을
+  가져올 때 지키는 규칙은 [10절](#import-rules)에 있습니다.
 - MDE 의 값은 모두 **시뮬레이션 모델의 추정값**입니다. 실물 시편이나 실제 로봇으로 확인한 값이 아닙니다.
 
 값 표기:
@@ -266,9 +268,9 @@ MDE 쪽은 이 사이트에 이미 공개한 Profile 만 씁니다: 16 oz 종이
 | 항목 | 상태 | 내용 |
 |---|---|---|
 | 읽기(ingest) | <span class="mde-st part">부분</span> | 구현됨: asset 을 고치지 않고 읽기만 하는 ingest. 단위·강체·질량·재질·라벨·라이선스를 asset 선언값으로 보고하고, asset 에 적혀 있지 않은 값은 채우지 않고 「unknown」 그대로 둡니다. 5.5 처럼 하위 prim 재질이 MDE 재질을 덮을 위험이 있으면 표시합니다. 계획: MDE 값을 별도 USD layer 로 덧씌우는 일(asset 원본은 그대로) |
-| 「실측 아님」으로 가져오기 | <span class="mde-st plan">계획</span> | asset 의 질량·마찰에 「asset 선언값, 실측 아님」 출처를 붙입니다. 질량이 공식값이면 그렇게 표시합니다. 반발·밀도·두께·채움 비율은 보고서에만 남깁니다 |
+| 「실측 아님」으로 가져오기 | <span class="mde-st done">구현됨</span> | asset 의 질량·마찰에 「asset 선언값, 실측 아님」(asset-declared, not measured) 출처를 붙입니다. 질량이 MDE 기본 Profile 값이나 asset 안의 다른 질량 값과 2배 넘게 다르면 큰 경고를 냅니다. 반발은 기록만 하고 MDE 판정에 쓰지 않습니다(10절) |
 | PhysX variant 선택 | <span class="mde-st plan">계획</span> | asset 을 장면에 넣을 때 PhysX variant 를 명시적으로 고르고, 근사가 없거나 입구를 막는 근사면 경고합니다 |
-| 재질 덮어쓰기 확인 | <span class="mde-st part">부분</span> | 구현됨: MDE 재질을 덮는 하위 묶음 검출, opt-in 묶는 방식 두 가지(MDE 재질이 이기도록 묶고 묶은 뒤 모든 충돌 형상을 다시 확인), opt-in 이 없으면 엄격 모드에서 오류·그 밖에는 경고. asset 파일은 고치지 않습니다. USD 수준에서만 확인했고, PhysX 수준 확인(기울인 판 위 미끄러짐 시험)은 아직 하지 않았습니다(5.5) |
+| 재질 덮어쓰기 확인 | <span class="mde-st part">부분</span> | 구현됨: MDE 재질을 덮는 하위 묶음 검출, opt-in 묶는 방식 두 가지(MDE 재질이 이기도록 묶고 묶은 뒤 모든 충돌 형상을 다시 확인), opt-in 이 없으면 엄격 모드에서 오류·그 밖에는 경고. SimReady asset 을 읽을 때 덮는 묶음이 있는 강체는 opt-in 이 없으면 MDE 계산에서 빼고, opt-in 결과에는 「USD 수준만 확인」을 표시합니다(10절). asset 파일은 고치지 않습니다. USD 수준에서만 확인했고, PhysX 수준 확인(기울인 판 위 미끄러짐 시험)은 아직 하지 않았습니다(5.5) |
 | asset 형상에 맞춘 Profile | <span class="mde-st part">부분</span> | 형상은 asset 에서 읽은 값(asset 선언)을 쓰고, 재료 값은 같은 소재의 공개 기본 Profile 값을 가정으로 가져옵니다. 모든 값에 「검증 안 됨」을 표시하며, 쓰기 전에 사람이 검토합니다. 8절 비교에 이렇게 만든 Profile 을 썼습니다. 재료 값을 asset 에 맞추는 일과 실물 보정은 하지 않았습니다 |
 | 검사 도구를 CI 에 | <span class="mde-st plan">계획</span> | `simready-validate` 결과를 판마다(3.1.0·4.0.0·5.0.0) 저장하고, 직접 만든 작은 시험 asset 으로 CI 에서 돌립니다 |
 
@@ -276,8 +278,11 @@ MDE 쪽은 이 사이트에 이미 공개한 Profile 만 씁니다: 16 oz 종이
 
 - 분석한 asset: **NVIDIA SimReady Assets** ([nvidia/simready-assets](https://huggingface.co/datasets/nvidia/simready-assets), rev 99bb6c7),
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode). 변경: MDE 분석, 그리고 8절 계산에서 MDE material layer 적용.
-  이 사이트는 asset 파일·형상·화면을 다시 배포하지 않으며, 표의 수치는 asset 을 읽어 얻은 값입니다.
-- 이 페이지는 NVIDIA 의 보증·후원·검토를 받지 않았으며, NVIDIA 와 무관한 분석입니다.
+- 9절의 추가 분석 asset: 위 NVIDIA SimReady Assets, 그리고 **projectsim SimReady Assets by Kaedim**
+  ([projectsim/simready-assets](https://huggingface.co/datasets/projectsim/simready-assets), rev 88e8b69),
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode). 변경: MDE 분석(파일은 읽기만 함).
+- 이 사이트는 asset 파일·형상·화면을 다시 배포하지 않으며, 표의 수치는 asset 을 읽어 얻은 값입니다.
+- 이 페이지는 NVIDIA·projectsim·Kaedim 의 보증·후원·검토를 받지 않았으며, 그들과 무관한 분석입니다.
 - 규격 설명의 근거: [What Is SimReady?](https://www.nvidia.com/en-us/glossary/simready/),
   [SimReady Foundation](https://github.com/NVIDIA/simready-foundation),
   [시작 안내](https://nvidia.github.io/simready-foundation/latest/guides/getting_started.html),
@@ -371,4 +376,47 @@ cardboard box 윗면을 강체 구(반지름 10 mm) 손끝으로 누릅니다. �
 - **재료 값은 모두 가정입니다.** 실물로 비교·검증하지 않았습니다. 이 결과는 재료 예측이 아니며, 시뮬레이션 결과가 실물에 그대로 맞는다고 주장하지 않습니다.
 - asset 질량은 3.3 절의 명목값입니다(종이컵 25.5 g 은 실제 종이컵보다 무겁습니다).
 
-<small>제3자 이름: NVIDIA·SimReady·Isaac Sim·OpenUSD·PhysX·MuJoCo·Newton·Hugging Face·Wikidata 는 각 소유자의 상표입니다. 이 페이지는 그 규격의 인증이나 준수를 뜻하지 않습니다.</small>
+## 9. 추가로 받은 asset 700개 분석 요약 { #batch-700 }
+
+기준일 2026-11-28 · asset 파일을 읽어서 한 분석 · GPU 장면 시험 전
+
+| 출처 | revision | asset 수 | 라이선스 |
+|---|---|---|---|
+| NVIDIA SimReady Assets (`nvidia/simready-assets`) | 99bb6c7 | 547 | CC BY 4.0 |
+| projectsim SimReady Assets by Kaedim (`projectsim/simready-assets`) | 88e8b69 | 153 | CC BY 4.0 |
+
+컵·머그·식기·병·캔·상자·포장·천·식품·용기처럼 MDE 와 관련된 범주를 골라 받았고, 3절과 같은 방식으로 읽었습니다(읽기 오류 0).
+여기에는 전체 경향만 적습니다. asset 별 표는 공개하지 않습니다.
+
+- **하위 prim 에 묶인 물리 재질이 예외가 아니라 흔합니다.** NVIDIA asset 의 약 절반(약 46 %), projectsim asset 은 전부가 물리 재질을
+  강체 prim 이 아니라 그 아래 prim(projectsim 은 충돌 mesh 자체)에 묶습니다. 이 asset 들에 MDE 재질을 그냥 묶으면 5.5 처럼 MDE 마찰이
+  무시될 수 있습니다. 그래서 덮어쓰기 검출(5.5)은 SimReady asset 을 쓰기 위한 **전제 조건**입니다.
+- **질량은 대부분 측정값이 아니라 공식값입니다.** 공식 속성이 있는 NVIDIA asset 은 대부분 질량이 3.3 절의 「밀도 × 겉넓이 × 두께 × 채움 비율」
+  값과 같습니다. projectsim asset 에는 공식 속성 없이 질량 값만 있습니다. 실물 무게보다 몇 배 무거운 값도 흔하므로
+  질량은 「asset 선언값, 실측 아님」으로만 가져옵니다(10절).
+- **마찰 결합 방식.** NVIDIA asset 은 결합 방식을 적지 않아 PhysX 기본(평균)이 쓰이고, projectsim asset 은 평균을 적어 둡니다.
+  어느 쪽도 MDE 시험의 「작은 쪽」 규칙과 다릅니다(5.3).
+- **검사 도구 5.0.0 을 통과하는 asset 은 소수입니다.** 3.1.0·4.0.0 은 거의 전부 통과하지만, 5.0.0 은 NVIDIA 50개·projectsim 1개만
+  통과했습니다. 나머지는 3.1 절과 같은 이유(앞 방향 미기재, `AF.001`)로 실패합니다.
+- **상표.** 700개 모두 미리보기 그림을 눈으로 보고 상표·로고(가상 브랜드 포함)가 보이는지 tag 를 달았습니다. 보이거나 의심되는 asset 이
+  약 40 % 입니다. 상표는 각 소유자의 것입니다.
+
+## 10. SimReady asset 을 가져오는 규칙 { #import-rules }
+
+MDE 의 읽기(ingest) 단계는 asset 파일을 고치지 않고 다음 규칙을 따릅니다. 시험은 CPU 에서, 직접 만든 작은 시험 asset 과 받은 asset 을 읽어서 했습니다.
+
+| 항목 | 상태 | 규칙 |
+|---|---|---|
+| 질량 | <span class="mde-st done">구현됨</span> | asset 질량은 「asset 선언값, 실측 아님」(asset-declared, not measured)으로 가져옵니다. 비교할 MDE 기본 Profile 이 있으면(지금은 컵) 그 질량과 비교해 2배 넘게 다르면(어느 쪽이든) 큰 경고를 냅니다. 비교할 Profile 이 없으면 비교를 건너뛰었다고 적습니다 |
+| asset 안의 질량 출처끼리 비교 | <span class="mde-st done">구현됨</span> | 같은 asset 이 질량을 여러 곳에 적는 경우(물리 엔진 variant 를 고른 상태의 강체 질량, asset 기본 variant 선택에서의 질량, asset metadata 의 질량)를 모두 기록하고, 두 값이 2배 넘게 다르면 큰 경고를 냅니다. 쓰는 값은 PhysX variant 를 고른 상태의 강체 질량이며 어느 값을 썼는지 적습니다. 받은 asset 중에는 같은 asset 안에서 질량이 4배 넘게 다른 것이 있었습니다 |
+| 마찰 결합 방식 | <span class="mde-st done">구현됨</span> | MDE 는 자기 규칙(작은 쪽)을 유지합니다. asset 이 적은 결합 방식, 또는 「적혀 있지 않음 → PhysX 평균」은 기록으로만 남깁니다 |
+| 반발 (restitution) | <span class="mde-st done">구현됨</span> | 기록만 하고 MDE 판정에는 쓰지 않습니다 |
+| 하위 prim 재질 묶음 | <span class="mde-st part">부분</span> | 강체마다 5.5 의 묶는 방식 세 가지(기본·opt-in 두 가지)에서 asset 묶음이 MDE 재질을 덮는지 기록합니다. 덮는 강체는 opt-in 방식이 MDE 재질을 이기게 하지 않는 한 MDE 계산에서 뺍니다. 엄격 모드에서는 오류로 멈추고, 그 밖에는 큰 경고와 함께 「판정하지 않음」으로 표시하며 그 asset 의 Profile 을 만들지 않습니다. opt-in 으로 넣은 결과에는 PhysX 확인 전까지 「USD 수준만 확인」(USD-level only)을 붙입니다 |
+| 상표 tag | <span class="mde-st done">구현됨</span> | 9절의 육안 판정 tag 를 asset 마다 붙이고, 데모에는 상표가 보이지 않는 asset 을 먼저 씁니다 |
+| 플라스틱 컵 | <span class="mde-st done">구현됨</span> | 두꺼운 재사용 플라스틱 컵(3절의 plastic cup, Wikidata Q3089098)은 MDE 판정 범위 밖이라 가져오기를 거부합니다. 3·4절의 비교는 asset 설명용으로만 남깁니다 |
+| asset 형상에 맞춘 Profile | <span class="mde-st part">부분</span> | 6절과 같습니다. 만든 Profile 의 값은 모두 「가정·검증 안 됨」으로 남습니다 |
+
+- 이 규칙은 asset 을 장면에 넣어 PhysX 로 움직여 본 결과가 아닙니다. GPU 장면 확인은 아직 하지 않았습니다.
+- 상표는 각 소유자의 것이며, 이 사이트는 상표가 있는 asset 의 화면을 싣지 않습니다.
+
+<small>제3자 이름: NVIDIA·SimReady·Isaac Sim·OpenUSD·PhysX·MuJoCo·Newton·Hugging Face·Wikidata·projectsim·Kaedim 은 각 소유자의 상표입니다. 이 페이지는 그 규격의 인증이나 준수를 뜻하지 않습니다.</small>
