@@ -40,8 +40,19 @@ MDE(Manufacturing Deformation Engine)는 로봇이 물체를 누르고 쥐고 �
 | 화소 단위 변형 라벨 | <span class="mde-st part">부분</span> | frame마다 MDE 변형 배열과 모델 상태 라벨을 RGB와 같은 번호로 저장합니다 | 대상 종류 일부에서만 확인했습니다. 영상 화소에 맞춘 변형 라벨은 일부만 됩니다 |
 | Docker 실행 묶음 | <span class="mde-st part">부분</span> | Isaac Sim 5.0.0·Isaac Lab 2.2.1을 host에 설치하지 않고 Docker 컨테이너로 실행합니다([설치와 예제 실행](index.md#설치와-예제-실행)) | 장면·설정·의존성을 한 묶음으로 내려받아 바로 돌리는 형태는 일부만 됩니다 |
 | 생성형 AI 증강 | <span class="mde-st plan">계획</span> | 라벨(segmentation·depth)은 그대로 두고 영상만 바꾸는 interface와 검사 규칙은 있습니다 | 생성 모델은 붙이지 않았습니다. 모델·데이터 라이선스 검토 뒤 결정합니다 |
+| 엄격 모드(물성·물리 값 기본값 금지) | <span class="mde-st done">구현됨</span> | 소재·물리 값이 빠지면 오류로 멈추고, 값을 몰라 `unknown` 으로 적은 항목은 채우지 않습니다. 아래 [엄격 모드](#strict-mode) 절 | 예전 실행 재현을 위해 기본값을 명시적으로 허용할 수 있고, 그때 쓴 기본값은 실행 기록에 남습니다 |
 | SimReady asset 연동 | <span class="mde-st plan">계획</span> | 아래 [NVIDIA SimReady asset 연동](#simready) 절 | 아직 SimReady asset으로 시험한 결과가 없습니다 |
 | sim-to-real 미끄러짐·접촉 변형 재현 | <span class="mde-st plan">계획(실측 전)</span> | 실물 측정과 대조하는 단계입니다 | 실물 측정을 하지 않았습니다. 시뮬레이션 결과를 실물 재현으로 주장하지 않습니다 |
+
+## 엄격 모드 <span class="mde-st done">구현됨</span> { #strict-mode }
+
+MDE 는 소재·물리 값이 빠졌을 때 그럴듯한 숫자를 대신 채워 계산을 이어 가지 않습니다.
+
+- Material Profile 이나 설정에 소재·물리 값이 없으면 계산을 시작하지 않고 오류로 멈춥니다. 오류 메시지에 빠진 항목(field) 이름을 적습니다.
+- 값을 몰라 `unknown` 으로 적은 항목은 어떤 경우에도 숫자로 채우지 않습니다.
+- 예전 실행을 재현할 때만 기본값을 명시적으로 허용(opt-out)할 수 있습니다. 이때 적용한 기본값은 하나하나 실행 기록에 남깁니다.
+- 코드 안에서 값이 빠졌을 때 조용히 채우던 기본값 26 곳을 찾아 모두 없앴습니다. 기존 Profile·설정으로 다시 계산한 결과는
+  바꾸기 전 코드의 결과와 bit 단위로 같습니다.
 
 ## 기능 시험 영상 { #feature-videos }
 
